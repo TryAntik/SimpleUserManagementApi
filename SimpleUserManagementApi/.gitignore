@@ -1,0 +1,46 @@
+﻿# .NET Core
+bin/
+obj/
+*.user
+*.suo
+*.sln.docstates
+packages/
+!.vscode/settings.json
+
+# User-specific files
+*.[Tt]estresult*
+*.userosscache
+*.sln.DotSettings.user
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa]rchive/
+[Aa]rchives/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Config files (СЕКРЕТЫ!)
+appsettings.Development.json
+appsettings.*.json
+.env
+secrets.json
+
+# Docker
+Dockerfile.*
+docker-compose.override.yml
+docker-compose.*.yml
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

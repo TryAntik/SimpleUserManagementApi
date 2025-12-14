@@ -1,0 +1,48 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using SimpleUserManagementApi.CRUD.DTOs;
+using SimpleUserManagementApi.CRUD.Services;
+
+namespace SimpleUserManagementApi.CRUD.Controllers;
+
+[ApiController]
+[Route("api/posts")]
+public class PostController : ControllerBase, IPostController
+{
+    private readonly IPostService _postService;
+
+    public PostController(IPostService postService)
+        => _postService = postService;
+
+    [HttpGet]
+    public async Task<ActionResult<List<PostDTO>>> GetAllPostsAsync()
+        => Ok(await _postService.GetAllPostsAsync());
+    
+    [HttpGet("user/{id}")]
+    public async Task<ActionResult<List<PostDTO>>> GetAllPostsByUserIdAsync(int id)
+        => Ok(await _postService.GetAllPostsByUserIdAsync(id));
+    
+    [HttpGet("{id}")]
+    public async Task<ActionResult<PostDTO>> GetPostByIdAsync(int id)
+        => Ok(await _postService.GetPostByIdAsync(id));
+
+    [HttpPost]
+    public async Task<ActionResult> AddPostAsync([FromBody] CreatePostDTO post)
+    {
+        await _postService.AddPostAsync(post);
+        return Ok();
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult> UpdatePostAsync(int id, [FromBody] UpdatePostDTO post)
+    {
+        await _postService.UpdatePostAsync(id, post);
+        return Ok();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeletePostAsync(int id)
+    {
+        await _postService.DeletePostAsync(id);
+        return Ok();
+    }
+}
