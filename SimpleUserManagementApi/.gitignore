@@ -29,7 +29,7 @@ bld/
 appsettings.Development.json
 appsettings.*.json
 .env
-secrets.json
+secrets.jsonz
 
 # Docker
 Dockerfile.*

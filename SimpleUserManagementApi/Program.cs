@@ -9,6 +9,9 @@ using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
+builder.Configuration.AddEnvironmentVariables();
+
+
 builder.Services.AddDbContext<ApplicationDbContext>(
     options =>
     {   
@@ -32,22 +35,22 @@ if (app.Environment.IsDevelopment())
     app.MapGet("/", () => Results.Redirect("/scalar"));
 }
 
-app.UseExceptionHandler(errorApp =>
-{
-    errorApp.Run(async context =>
+    app.UseExceptionHandler(errorApp =>
     {
-        var exception = context.Features.Get<IExceptionHandlerPathFeature>()?.Error;
-        context.Response.StatusCode = exception switch
+        errorApp.Run(async context =>
         {
-            NotFoundException => 404,
-            ArgumentException => 400,
-            _ => 500
-        };
-        context.Response.ContentType = "application/json";
-        var response = new { error = exception?.Message };
-        await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(response));
+            var exception = context.Features.Get<IExceptionHandlerPathFeature>()?.Error;
+            context.Response.StatusCode = exception switch
+            {
+                NotFoundException => 404,
+                ArgumentException => 400,
+                _ => 500
+            };
+            context.Response.ContentType = "application/json";
+            var response = new { error = exception?.Message };
+            await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(response));
+        });
     });
-});
 
 
 app.UseHttpsRedirection();
