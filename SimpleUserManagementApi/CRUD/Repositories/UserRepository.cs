@@ -19,7 +19,7 @@ public class UserRepository : IUserRepository
         => await _dbContext.Users.FirstOrDefaultAsync(a => a.Id == id);
     
     public async Task AddUserAsync(UserEntity user)
-    {
+    { 
         _dbContext.Users.Add(user);
         await _dbContext.SaveChangesAsync();
     }
