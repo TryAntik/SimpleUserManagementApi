@@ -4,12 +4,12 @@ namespace SimpleUserManagementApi.Models;
 
 public class PostEntity
 {
-    public int Id { get; set; }
-    public int UserId { get; set; }
+    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
     
     [Required]
     public string Title { get; set; } = string.Empty;
-     
+    
     [Required]
     public string Content { get; set; } = string.Empty;
     

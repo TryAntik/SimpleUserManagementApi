@@ -10,15 +10,15 @@ public class UserController : ControllerBase, IUserController
 {
     private readonly IUserService _userService;
 
-    public UserController(IUserService userService)
+    public UserController(IUserService userService) 
         => _userService = userService;
 
     [HttpGet]
     public async Task<ActionResult<List<UserDTO>>> GetAllUsersAsync()
         => Ok(await _userService.GetAllUsersAsync());
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<UserDTO>> GetUserByIdAsync(int id)
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<UserDTO>> GetUserByIdAsync(Guid id)
         => Ok(await _userService.GetUserByIdAsync(id));
 
     [HttpPost]
@@ -28,15 +28,15 @@ public class UserController : ControllerBase, IUserController
         return Ok();
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateUserAsync(int id, [FromBody] UpdateUserDTO user)
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult> UpdateUserAsync(Guid id, [FromBody] UpdateUserDTO user)
     {
         await _userService.UpdateUserAsync(id, user);
         return Ok();
     }
 
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteUserAsync(int id)
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> DeleteUserAsync(Guid id)
     {
         await _userService.DeleteUserAsync(id);
         return Ok();

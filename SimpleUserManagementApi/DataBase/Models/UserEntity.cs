@@ -4,7 +4,10 @@ namespace SimpleUserManagementApi.Models;
 
 public class UserEntity
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
+    
+    [Required]
+    public string PasswordHash { get; set; } = string.Empty;
     
     [Required]
     [MinLength(2)]

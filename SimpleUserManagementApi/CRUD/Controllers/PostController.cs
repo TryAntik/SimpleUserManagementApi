@@ -12,17 +12,17 @@ public class PostController : ControllerBase, IPostController
 
     public PostController(IPostService postService)
         => _postService = postService;
-
+    
     [HttpGet]
     public async Task<ActionResult<List<PostDTO>>> GetAllPostsAsync()
         => Ok(await _postService.GetAllPostsAsync());
     
-    [HttpGet("user/{id}")]
-    public async Task<ActionResult<List<PostDTO>>> GetAllPostsByUserIdAsync(int id)
+    [HttpGet("user/{id:guid}")]
+    public async Task<ActionResult<List<PostDTO>>> GetAllPostsByUserIdAsync(Guid id)
         => Ok(await _postService.GetAllPostsByUserIdAsync(id));
     
-    [HttpGet("{id}")]
-    public async Task<ActionResult<PostDTO>> GetPostByIdAsync(int id)
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<PostDTO>> GetPostByIdAsync(Guid id)
         => Ok(await _postService.GetPostByIdAsync(id));
 
     [HttpPost]
@@ -32,15 +32,15 @@ public class PostController : ControllerBase, IPostController
         return Ok();
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult> UpdatePostAsync(int id, [FromBody] UpdatePostDTO post)
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult> UpdatePostAsync(Guid id, [FromBody] UpdatePostDTO post)
     {
         await _postService.UpdatePostAsync(id, post);
         return Ok();
     }
 
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> DeletePostAsync(int id)
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> DeletePostAsync(Guid id)
     {
         await _postService.DeletePostAsync(id);
         return Ok();

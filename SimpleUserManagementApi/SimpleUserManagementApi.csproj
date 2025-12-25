@@ -16,4 +16,8 @@
         <PackageReference Include="Scalar.AspNetCore" Version="2.11.6" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="DataBase\Migrations\" />
+    </ItemGroup>
+
 </Project>

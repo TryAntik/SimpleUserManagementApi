@@ -12,10 +12,10 @@ public class UserRepository : IUserRepository
     public UserRepository(ApplicationDbContext dbContext)
         => _dbContext = dbContext;
 
-    public async Task<List<UserEntity>> GetAllUsersAsync()
+    public async Task<List<UserEntity>> GetAllUsersAsync()      
         => await _dbContext.Users.ToListAsync();
     
-    public async Task<UserEntity?> GetUserByIdAsync(int id)
+    public async Task<UserEntity?> GetUserByIdAsync(Guid id)
         => await _dbContext.Users.FirstOrDefaultAsync(a => a.Id == id);
     
     public async Task AddUserAsync(UserEntity user)
@@ -30,11 +30,11 @@ public class UserRepository : IUserRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task DeleteUserAsync(int id)
+    public async Task DeleteUserAsync(Guid id)
     {
         var user = await _dbContext.Users.FirstOrDefaultAsync(a => a.Id == id);
-        
-        if(user == null)
+
+        if (user == null)
             throw new NotFoundException($"user with id {id} not found");
 
         _dbContext.Users.Remove(user);
