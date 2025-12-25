@@ -29,11 +29,12 @@ public class PostService : IPostService
         )).ToList();
     }
 
-    public async Task<PostDTO?> GetPostByIdAsync(int id)
+    public async Task<PostDTO?> GetPostByIdAsync(Guid id)
     {
         var entity = await _postRepository.GetPostByIdAsync(id);
 
-        if (entity is null) return null;
+        if (entity is null) throw new NotFoundException(
+            $"post with id {id} not found");
         
         return new PostDTO(
             entity.Id,
@@ -43,10 +44,10 @@ public class PostService : IPostService
             entity.UserId);
     }
  
-    public async Task<List<PostDTO>> GetAllPostsByUserIdAsync(int userId)
+    public async Task<List<PostDTO>> GetAllPostsByUserIdAsync(Guid userId)
     {
         var entityPosts = await _postRepository.GetAllPostsByUserIdAsync(userId);
-
+    
         if (entityPosts is null || !entityPosts.Any())
             throw new NotFoundException($"Posts for user {userId} not found");
 
@@ -69,17 +70,18 @@ public class PostService : IPostService
         {
             Title = post.Title,
             Content = post.Content,
-            UserId = post.UserId
+            UserId = post.UserId 
         };
 
         await _postRepository.AddPostAsync(postEntity);
     }
 
-    public async Task UpdatePostAsync(int id, UpdatePostDTO post)
+    public async Task UpdatePostAsync(Guid id, UpdatePostDTO post)
     {
         var postEntity = await _postRepository.GetPostByIdAsync(id);
         
-        if(postEntity is null) throw new NotFoundException($"post with id {id} not found");
+        if(postEntity is null) throw new NotFoundException(
+            $"post with id {id} not found");
 
         postEntity.Title = post.Title;
         postEntity.Content = post.Content;
@@ -87,6 +89,6 @@ public class PostService : IPostService
         await _postRepository.UpdatePostAsync(postEntity);
     }
 
-    public async Task DeletePostAsync(int id)
+    public async Task DeletePostAsync(Guid id)
         => await _postRepository.DeletePostAsync(id);
 }

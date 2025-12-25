@@ -23,7 +23,7 @@ public class UserService : IUserService
             a.CreatedAt)).ToList();
     }
 
-    public async Task<UserDTO> GetUserByIdAsync(int userId)
+    public async Task<UserDTO> GetUserByIdAsync(Guid userId)
     {
         var user = await _userRepository.GetUserByIdAsync(userId);
 
@@ -50,7 +50,7 @@ public class UserService : IUserService
         await _userRepository.AddUserAsync(userEntity);
     }
 
-    public async Task UpdateUserAsync(int id, UpdateUserDTO userDTO)
+    public async Task UpdateUserAsync(Guid id, UpdateUserDTO userDTO)
     {
         var user = await _userRepository.GetUserByIdAsync(id);
         
@@ -63,8 +63,6 @@ public class UserService : IUserService
         await _userRepository.UpdateUserAsync(user);
     }
 
-    public async Task DeleteUserAsync(int id)
-    {
-        await _userRepository.DeleteUserAsync(id);
-    }
+    public async Task DeleteUserAsync(Guid id)
+        => await _userRepository.DeleteUserAsync(id);
 }

@@ -5,9 +5,9 @@ namespace SimpleUserManagementApi.CRUD.Repositories;
 public interface IPostRepository
 {
     Task<List<PostEntity>> GetAllPostsAsync();
-    Task<PostEntity?> GetPostByIdAsync(int postId);
-    Task<List<PostEntity>?> GetAllPostsByUserIdAsync(int userId);
+    Task<PostEntity?> GetPostByIdAsync(Guid postId);
+    Task<List<PostEntity>?> GetAllPostsByUserIdAsync(Guid userId);
     Task AddPostAsync(PostEntity post);
     Task UpdatePostAsync(PostEntity updated);
-    Task DeletePostAsync(int id);
+    Task DeletePostAsync(Guid postId);
 }   

@@ -15,13 +15,13 @@ public class PostRepository : IPostRepository
     public async Task<List<PostEntity>> GetAllPostsAsync()
         => await _dbContext.Posts.ToListAsync();
 
-    public async Task<PostEntity?> GetPostByIdAsync(int postId)
+    public async Task<PostEntity?> GetPostByIdAsync(Guid postId)
     {
         var post = await _dbContext.Posts.FirstOrDefaultAsync(a => a.Id == postId);
         return post;
     }
 
-    public async Task<List<PostEntity>?> GetAllPostsByUserIdAsync(int userId)
+    public async Task<List<PostEntity>?> GetAllPostsByUserIdAsync(Guid userId)
     {
         return await _dbContext.Posts
             .Where(p => p.UserId == userId)
@@ -40,7 +40,7 @@ public class PostRepository : IPostRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task DeletePostAsync(int id)
+    public async Task DeletePostAsync(Guid id)
     {
         var post = await _dbContext.Posts.FirstOrDefaultAsync(a => a.Id == id);
         
