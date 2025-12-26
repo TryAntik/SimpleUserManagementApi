@@ -1,10 +1,14 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
-using SimpleUserManagementApi.CRUD.Repositories;
 using SimpleUserManagementApi.DataBase;
-using SimpleUserManagementApi.CRUD.Services;
 using SimpleUserManagementApi.Exceptions;
 using Scalar.AspNetCore;
+using SimpleUserManagementApi.PostManager.Interfaces;
+using SimpleUserManagementApi.PostManager.Repositories;
+using SimpleUserManagementApi.PostManager.Services;
+using SimpleUserManagementApi.UserManager.Interfaces;
+using SimpleUserManagementApi.UserManager.Repositories;
+using SimpleUserManagementApi.UserManager.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;

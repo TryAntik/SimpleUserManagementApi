@@ -1,9 +1,10 @@
-﻿using SimpleUserManagementApi.CRUD.Repositories;
-using SimpleUserManagementApi.CRUD.DTOs;
-using SimpleUserManagementApi.Exceptions;
+﻿using SimpleUserManagementApi.Exceptions;
 using SimpleUserManagementApi.Models;
+using SimpleUserManagementApi.PostManager.DTOs;
+using SimpleUserManagementApi.PostManager.Interfaces;
+using SimpleUserManagementApi.UserManager.Interfaces;
 
-namespace SimpleUserManagementApi.CRUD.Services;
+namespace SimpleUserManagementApi.PostManager.Services;
 
 public class PostService : IPostService
 {

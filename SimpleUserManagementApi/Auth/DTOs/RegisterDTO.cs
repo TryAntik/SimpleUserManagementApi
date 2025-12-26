@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SimpleUserManagementApi.Auth;
+namespace SimpleUserManagementApi.Auth.DTOs;
 
 public sealed record RegisterDTO(
     [MinLength(3), Required] string Name,

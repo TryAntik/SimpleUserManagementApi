@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SimpleUserManagementApi.CRUD.DTOs;
+namespace SimpleUserManagementApi.UserManager.DTOs;
 
 public sealed record UserDTO(Guid Id, string Name, string Email, DateTime CreatedAt);
 

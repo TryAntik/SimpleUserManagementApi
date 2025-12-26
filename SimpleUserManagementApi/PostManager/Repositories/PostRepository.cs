@@ -2,8 +2,9 @@
 using SimpleUserManagementApi.DataBase;
 using SimpleUserManagementApi.Exceptions;
 using SimpleUserManagementApi.Models;
+using SimpleUserManagementApi.PostManager.Interfaces;
 
-namespace SimpleUserManagementApi.CRUD.Repositories;
+namespace SimpleUserManagementApi.PostManager.Repositories;
 
 public class PostRepository : IPostRepository
 {

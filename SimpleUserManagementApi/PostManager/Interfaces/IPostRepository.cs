@@ -1,6 +1,6 @@
 ﻿using SimpleUserManagementApi.Models;
 
-namespace SimpleUserManagementApi.CRUD.Repositories;
+namespace SimpleUserManagementApi.PostManager.Interfaces;
 
 public interface IPostRepository
 {

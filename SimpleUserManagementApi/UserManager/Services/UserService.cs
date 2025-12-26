@@ -1,9 +1,12 @@
-﻿using SimpleUserManagementApi.CRUD.Repositories;
-using SimpleUserManagementApi.CRUD.DTOs;
+﻿using SimpleUserManagementApi.Auth.DTOs;
+using SimpleUserManagementApi.DataBase.Models;
 using SimpleUserManagementApi.Exceptions;
-using SimpleUserManagementApi.Models;
+using SimpleUserManagementApi.UserManager.DTOs;
+using SimpleUserManagementApi.UserManager.Interfaces;
+using BCrypt.Net;
+using Microsoft.AspNetCore.Identity;
 
-namespace SimpleUserManagementApi.CRUD.Services;
+namespace SimpleUserManagementApi.UserManager.Services;
 
 public class UserService : IUserService
 {
@@ -33,14 +36,31 @@ public class UserService : IUserService
         return new UserDTO(user.Id, user.Name, user.Email, user.CreatedAt);
     }
 
+    public async Task<UserEntity> RegisterUserAsync(RegisterDTO request)
+    {
+        var userExists = await _userRepository.CheckUserExistsAsync(request.Email, request.Name);
+        if (userExists) throw new Exception("user with same email, name is already registered.");
+
+        var passwordHashed = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+        var user = new UserEntity
+        {
+            Name = request.Name,
+            Email = request.Email,
+            PasswordHash = passwordHashed
+        };
+
+        await _userRepository.AddUserAsync(user);
+        return user;
+    }
+
     public async Task AddUserAsync(CreateUserDTO userDTO)
     {
         if (string.IsNullOrWhiteSpace(userDTO.Name) ||
-            userDTO.Name.Contains(' '))
+            userDTO.Name.Contains(' ')) 
         {
-            throw new ArgumentException("Name format is invalid");
+            throw new ArgumentException("Name format is invalid"); 
         }
-
         var userEntity = new UserEntity
         {
             Name = userDTO.Name,

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SimpleUserManagementApi.CRUD.DTOs;
-    
-namespace SimpleUserManagementApi.CRUD.Controllers;
+using SimpleUserManagementApi.UserManager.DTOs;
+
+namespace SimpleUserManagementApi.UserManager.Interfaces;
 
 public interface IUserController
 {

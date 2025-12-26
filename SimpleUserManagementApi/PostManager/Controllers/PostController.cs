@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SimpleUserManagementApi.CRUD.DTOs;
-using SimpleUserManagementApi.CRUD.Services;
+using SimpleUserManagementApi.PostManager.DTOs;
+using SimpleUserManagementApi.PostManager.Interfaces;
 
-namespace SimpleUserManagementApi.CRUD.Controllers;
+namespace SimpleUserManagementApi.PostManager.Controllers;
 
 [ApiController]
 [Route("api/posts")]

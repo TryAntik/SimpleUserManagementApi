@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SimpleUserManagementApi.CRUD.DTOs;
-using SimpleUserManagementApi.CRUD.Services;
+using SimpleUserManagementApi.UserManager.DTOs;
+using SimpleUserManagementApi.UserManager.Interfaces;
 
-namespace SimpleUserManagementApi.CRUD.Controllers;
+namespace SimpleUserManagementApi.UserManager.Controllers;
 
 [ApiController]
 [Route("api/users")]

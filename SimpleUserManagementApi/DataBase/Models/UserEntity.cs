@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using SimpleUserManagementApi.Models;
 
-namespace SimpleUserManagementApi.Models;
+namespace SimpleUserManagementApi.DataBase.Models;
 
 public class UserEntity
 {
@@ -10,7 +11,7 @@ public class UserEntity
     public string PasswordHash { get; set; } = string.Empty;
     
     [Required]
-    [MinLength(2)]
+    [MinLength(3)]
     public string Name { get; set; } = string.Empty;
     
     [Required]

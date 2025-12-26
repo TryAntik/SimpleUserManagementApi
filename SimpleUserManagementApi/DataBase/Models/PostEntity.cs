@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using SimpleUserManagementApi.DataBase.Models;
 
 namespace SimpleUserManagementApi.Models;
 

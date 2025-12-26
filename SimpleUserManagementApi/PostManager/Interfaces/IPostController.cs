@@ -1,7 +1,7 @@
-﻿using SimpleUserManagementApi.CRUD.DTOs;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SimpleUserManagementApi.PostManager.DTOs;
 
-namespace SimpleUserManagementApi.CRUD.Controllers;
+namespace SimpleUserManagementApi.PostManager.Interfaces;
 
 public interface IPostController
 {

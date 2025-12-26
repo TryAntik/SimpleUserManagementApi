@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SimpleUserManagementApi.DataBase.Models;
 using SimpleUserManagementApi.Models;
 
 namespace SimpleUserManagementApi.DataBase;

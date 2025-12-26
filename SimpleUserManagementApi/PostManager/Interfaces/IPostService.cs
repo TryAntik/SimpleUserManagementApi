@@ -1,6 +1,6 @@
-﻿using SimpleUserManagementApi.CRUD.DTOs;
+﻿using SimpleUserManagementApi.PostManager.DTOs;
 
-namespace SimpleUserManagementApi.CRUD.Services;
+namespace SimpleUserManagementApi.PostManager.Interfaces;
 
 public interface IPostService
 {

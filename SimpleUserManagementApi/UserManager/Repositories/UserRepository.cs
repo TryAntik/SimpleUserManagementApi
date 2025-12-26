@@ -1,9 +1,10 @@
-﻿using SimpleUserManagementApi.Exceptions;
+﻿using Microsoft.EntityFrameworkCore;
 using SimpleUserManagementApi.DataBase;
-using SimpleUserManagementApi.Models;
-using Microsoft.EntityFrameworkCore;
+using SimpleUserManagementApi.DataBase.Models;
+using SimpleUserManagementApi.Exceptions;
+using SimpleUserManagementApi.UserManager.Interfaces;
 
-namespace SimpleUserManagementApi.CRUD.Repositories;
+namespace SimpleUserManagementApi.UserManager.Repositories;
 
 public class UserRepository : IUserRepository
 {
@@ -12,6 +13,11 @@ public class UserRepository : IUserRepository
     public UserRepository(ApplicationDbContext dbContext)
         => _dbContext = dbContext;
 
+    public async Task<bool> CheckUserExistsAsync(string email, string name)
+        => await _dbContext.Users.AnyAsync(
+            a => a.Email.ToLower() == email.ToLower() || 
+                 a.Name.ToLower() == name.ToLower());
+    
     public async Task<List<UserEntity>> GetAllUsersAsync()      
         => await _dbContext.Users.ToListAsync();
     
