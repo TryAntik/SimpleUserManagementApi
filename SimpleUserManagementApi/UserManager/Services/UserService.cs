@@ -30,7 +30,7 @@ public class UserService : IUserService
     {
         var user = await _userRepository.GetUserByIdAsync(userId);
 
-        if (user is null) throw new ArgumentException(
+        if (user is null) throw new ArgumentException(  
             $"user with id {userId} not found");
         
         return new UserDTO(user.Id, user.Name, user.Email, user.CreatedAt);
@@ -51,6 +51,19 @@ public class UserService : IUserService
         };
 
         await _userRepository.AddUserAsync(user);
+        return user;
+    }
+
+    public async Task<UserEntity> LoginUserAsync(LoginDTO request)
+    {
+        var user = await _userRepository.GetUserByEmailAsync(request.Email);
+        
+        if(user is null) throw new NotFoundException($"user with email {request.Email} not found");
+
+        var validPassword = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
+        
+        if(!validPassword) throw new UnauthorizedAccessException($"invalid password");
+
         return user;
     }
 

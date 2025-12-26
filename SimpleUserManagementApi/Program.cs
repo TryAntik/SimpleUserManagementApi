@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SimpleUserManagementApi.DataBase;
 using SimpleUserManagementApi.Exceptions;
 using Scalar.AspNetCore;
+using SimpleUserManagementApi.Auth.JWT;
 using SimpleUserManagementApi.PostManager.Interfaces;
 using SimpleUserManagementApi.PostManager.Repositories;
 using SimpleUserManagementApi.PostManager.Services;
@@ -21,6 +22,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(
     {   
         options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
     });
+
+builder.Configuration.AddConfiguration(configuration.GetSection("AuthSettings"));
+builder.Services.AddScoped<JwtService>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostService, PostService>();

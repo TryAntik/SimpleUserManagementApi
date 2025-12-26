@@ -17,6 +17,12 @@ public class UserRepository : IUserRepository
         => await _dbContext.Users.AnyAsync(
             a => a.Email.ToLower() == email.ToLower() || 
                  a.Name.ToLower() == name.ToLower());
+
+    public async Task<bool> CheckUserExistsAsync(string email)
+        => await _dbContext.Users.AnyAsync(a => a.Email.ToLower() == email.ToLower());
+
+    public async Task<UserEntity?> GetUserByEmailAsync(string email)
+        => await _dbContext.Users.FirstOrDefaultAsync(a => a.Email.ToLower() == email.ToLower());
     
     public async Task<List<UserEntity>> GetAllUsersAsync()      
         => await _dbContext.Users.ToListAsync();
