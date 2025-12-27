@@ -30,7 +30,7 @@ public class UserService : IUserService
     {
         var user = await _userRepository.GetUserByIdAsync(userId);
 
-        if (user is null) throw new ArgumentException(  
+        if (user is null) throw new NotFoundException(  
             $"user with id {userId} not found");
         
         return new UserDTO(user.Id, user.Name, user.Email, user.CreatedAt);
@@ -72,7 +72,7 @@ public class UserService : IUserService
         if (string.IsNullOrWhiteSpace(userDTO.Name) ||
             userDTO.Name.Contains(' ')) 
         {
-            throw new ArgumentException("Name format is invalid"); 
+            throw new NotFoundException("Name format is invalid"); 
         }
         var userEntity = new UserEntity
         {
