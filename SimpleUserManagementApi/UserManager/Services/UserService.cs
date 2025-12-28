@@ -3,8 +3,6 @@ using SimpleUserManagementApi.DataBase.Models;
 using SimpleUserManagementApi.Exceptions;
 using SimpleUserManagementApi.UserManager.DTOs;
 using SimpleUserManagementApi.UserManager.Interfaces;
-using BCrypt.Net;
-using Microsoft.AspNetCore.Identity;
 
 namespace SimpleUserManagementApi.UserManager.Services;
 
@@ -36,12 +34,16 @@ public class UserService : IUserService
         return new UserDTO(user.Id, user.Name, user.Email, user.CreatedAt);
     }
 
-    public async Task<UserEntity> RegisterUserAsync(RegisterDTO request)
+    public async Task RegisterUserAsync(RegisterDTO request)
     {
-        var userExists = await _userRepository.GetUserByEmailAsync(request.Email);
+        var userExists = await _userRepository.CheckUserExistsAsync(request.Email);
         
-        if (userExists is not null) throw new Exception($"user already exists");
-
+        if (userExists) throw new Exception($"user with email {request.Email} is already registered");
+        
+        if (request.Name.Any(c => c == ' ')) throw new Exception("Name cannot contain spaces");
+        if (request.Password.Any(c => c == ' ')) throw new Exception("Password cannot contain spaces");
+        if (request.Email.Count(c => c == '.') != 1) throw new Exception("Invalid email format");
+        
         var createUserDTO = new CreateUserDTO(
             request.Name,
             request.Email,
@@ -49,10 +51,7 @@ public class UserService : IUserService
         );
 
         await AddUserAsync(createUserDTO);
-    } 
-    // TODO:
-    // Регистрацию сделать Task .
-    // 
+    }
 
     public async Task<UserEntity> LoginUserAsync(LoginDTO request)
     {
@@ -69,18 +68,15 @@ public class UserService : IUserService
 
     public async Task AddUserAsync(CreateUserDTO userDTO)
     {
-        if (string.IsNullOrWhiteSpace(userDTO.Name) ||
-            userDTO.Name.Contains(' ')) 
-        {
-            throw new NotFoundException("Name format is invalid"); 
-        }
+        
         var userEntity = new UserEntity
         {
             Name = userDTO.Name,
-            Email = userDTO.Email
+            Email = userDTO.Email,
+            PasswordHash = userDTO.PasswordHash
         };
 
-        await _userRepository.AddUserAsync(userEntity);
+        await _userRepository.AddUserAsync(userEntity); 
     }
 
     public async Task UpdateUserAsync(Guid id, UpdateUserDTO userDTO)
