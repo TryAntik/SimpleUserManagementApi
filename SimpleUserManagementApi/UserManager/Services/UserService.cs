@@ -38,21 +38,21 @@ public class UserService : IUserService
 
     public async Task<UserEntity> RegisterUserAsync(RegisterDTO request)
     {
-        var userExists = await _userRepository.CheckUserExistsAsync(request.Email, request.Name);
-        if (userExists) throw new Exception("user with same email, name is already registered.");
+        var userExists = await _userRepository.GetUserByEmailAsync(request.Email);
+        
+        if (userExists is not null) throw new Exception($"user already exists");
 
-        var passwordHashed = BCrypt.Net.BCrypt.HashPassword(request.Password);
+        var createUserDTO = new CreateUserDTO(
+            request.Name,
+            request.Email,
+            BCrypt.Net.BCrypt.HashPassword(request.Password)
+        );
 
-        var user = new UserEntity
-        {
-            Name = request.Name,
-            Email = request.Email,
-            PasswordHash = passwordHashed
-        };
-
-        await _userRepository.AddUserAsync(user);
-        return user;
-    }
+        await AddUserAsync(createUserDTO);
+    } 
+    // TODO:
+    // Регистрацию сделать Task .
+    // 
 
     public async Task<UserEntity> LoginUserAsync(LoginDTO request)
     {
