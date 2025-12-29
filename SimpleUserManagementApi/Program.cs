@@ -25,7 +25,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 
 builder.Services.Configure<AuthSettings>(configuration.GetSection("AuthSettings"));
 
-builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
