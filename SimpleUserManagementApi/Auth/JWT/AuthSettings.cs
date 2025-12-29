@@ -2,6 +2,6 @@
 
 public class AuthSettings
 {
-    public TimeSpan Expires { get; set; }
+    public TimeSpan TokenLifeTime { get; set; }
     public string SecretKey { get; set; } 
 }

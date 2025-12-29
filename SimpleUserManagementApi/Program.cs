@@ -23,9 +23,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(
         options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
     });
 
-builder.Configuration.AddConfiguration(configuration.GetSection("AuthSettings"));
-builder.Services.AddScoped<JwtService>();
+builder.Services.Configure<AuthSettings>(configuration.GetSection("AuthSettings"));
 
+builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();

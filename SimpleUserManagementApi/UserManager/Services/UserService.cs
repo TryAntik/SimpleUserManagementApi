@@ -1,4 +1,5 @@
 ﻿using SimpleUserManagementApi.Auth.DTOs;
+using SimpleUserManagementApi.Auth.JWT;
 using SimpleUserManagementApi.DataBase.Models;
 using SimpleUserManagementApi.Exceptions;
 using SimpleUserManagementApi.UserManager.DTOs;
@@ -9,9 +10,13 @@ namespace SimpleUserManagementApi.UserManager.Services;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IJwtService _jwtService;
 
-    public UserService(IUserRepository userRepository)
-        => _userRepository = userRepository;
+    public UserService(IUserRepository userRepository, IJwtService jwtService)
+    {
+        _userRepository = userRepository;
+        _jwtService = jwtService;
+    }
 
     public async Task<List<UserDTO>> GetAllUsersAsync()
     {
@@ -52,23 +57,20 @@ public class UserService : IUserService
 
         await AddUserAsync(createUserDTO);
     }
-
-    public async Task<UserEntity> LoginUserAsync(LoginDTO request)
+    
+    public async Task<string> LoginUserAsync(LoginDTO request)
     {
         var user = await _userRepository.GetUserByEmailAsync(request.Email);
-        
         if(user is null) throw new NotFoundException($"user with email {request.Email} not found");
-
-        var validPassword = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
         
-        if(!validPassword) throw new UnauthorizedAccessException($"invalid password");
+        var validPassword = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
+        if(!validPassword) throw new UnauthorizedAccessException($"invalid password"); 
 
-        return user;
+        return _jwtService.GenerateToken(user);
     }
 
     public async Task AddUserAsync(CreateUserDTO userDTO)
     {
-        
         var userEntity = new UserEntity
         {
             Name = userDTO.Name,

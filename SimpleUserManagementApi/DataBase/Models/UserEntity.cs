@@ -11,11 +11,12 @@ public class UserEntity
     public string PasswordHash { get; set; } = string.Empty;
     
     [Required]
-    [MinLength(3)]
+    [MinLength(3), MaxLength(9)]
     public string Name { get; set; } = string.Empty;
     
     [Required]
     [EmailAddress]
+    [MaxLength(30)]
     public string Email { get; set; } = string.Empty;
 
     public List<PostEntity> Posts { get; set; } = [];
