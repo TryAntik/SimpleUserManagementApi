@@ -16,24 +16,27 @@ public class JwtService : IJwtService
 
     public string GenerateToken(UserEntity user)
     {
-        var claims = new List<Claim>()
+        Claim[] claims = new Claim[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Name),
             new Claim(ClaimTypes.Email, user.Email)
         };
-        var handler = new JwtSecurityTokenHandler();
-        var token = handler.CreateJwtSecurityToken(
-            new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.Add(_options.Value.TokenLifeTime),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(_options.Value.SecretKey)),
-                    SecurityAlgorithms.HmacSha256Signature)
-            });
-            
-        return handler.WriteToken(token);
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.SecretKey));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var descriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            SigningCredentials = creds,
+            Expires = DateTime.UtcNow.Add(_options.Value.TokenLifeTime)
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(descriptor);
+
+        return tokenHandler.WriteToken(token);
     }
 }
 

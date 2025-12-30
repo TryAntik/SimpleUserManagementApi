@@ -18,7 +18,7 @@ public class AuthController : ControllerBase
      {
          await _userService.RegisterUserAsync(request);
          return Ok();
-     }
+     }  
     
        [HttpPost("login")]
        public async Task<ActionResult<string>> Login([FromBody] LoginDTO request)
