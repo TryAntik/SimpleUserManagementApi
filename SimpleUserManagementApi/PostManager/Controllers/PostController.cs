@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using SimpleUserManagementApi.PostManager.DTOs;
 using SimpleUserManagementApi.PostManager.Interfaces;
 
@@ -6,6 +7,7 @@ namespace SimpleUserManagementApi.PostManager.Controllers;
 
 [ApiController]
 [Route("api/posts")]
+[Authorize]
 public class PostController : ControllerBase, IPostController
 {
     private readonly IPostService _postService;

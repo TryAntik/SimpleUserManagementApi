@@ -9,18 +9,18 @@ namespace SimpleUserManagementApi.Auth.JWT;
 
 public class JwtService : IJwtService
 {
-    private readonly IOptions<AuthSettings> _options;
+    private readonly IOptions<JwtSettings> _options;
 
-    public JwtService(IOptions<AuthSettings> options)
+    public JwtService(IOptions<JwtSettings> options)
         => _options = options;
 
     public string GenerateToken(UserEntity user)
     {
-        Claim[] claims = new Claim[]
+        var claims = new Claim[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Name),
-            new Claim(ClaimTypes.Email, user.Email)
+            new Claim(ClaimTypes.Email, user.Email),
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.SecretKey));
@@ -29,14 +29,14 @@ public class JwtService : IJwtService
         var descriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            SigningCredentials = creds,
-            Expires = DateTime.UtcNow.Add(_options.Value.TokenLifeTime)
+            Expires = DateTime.UtcNow.Add(_options.Value.TokenLifeTime),
+            SigningCredentials = creds
         };
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(descriptor);
-
-        return tokenHandler.WriteToken(token);
+        
+        var handler = new JwtSecurityTokenHandler();
+        var token = handler.CreateToken(descriptor);
+        
+        return handler.WriteToken(token);
     }
 }
 

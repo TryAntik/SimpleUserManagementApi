@@ -1,21 +1,23 @@
-using Microsoft.AspNetCore.Diagnostics;
+using System.Text;
+using Scalar.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using SimpleUserManagementApi.Auth.JWT;
 using SimpleUserManagementApi.DataBase;
 using SimpleUserManagementApi.Exceptions;
-using Scalar.AspNetCore;
-using SimpleUserManagementApi.Auth.JWT;
+using SimpleUserManagementApi.PostManager.Services;
+using SimpleUserManagementApi.UserManager.Services;
+using SimpleUserManagementApi.UserManager.Interfaces;
 using SimpleUserManagementApi.PostManager.Interfaces;
 using SimpleUserManagementApi.PostManager.Repositories;
-using SimpleUserManagementApi.PostManager.Services;
-using SimpleUserManagementApi.UserManager.Interfaces;
 using SimpleUserManagementApi.UserManager.Repositories;
-using SimpleUserManagementApi.UserManager.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
 builder.Configuration.AddEnvironmentVariables();
-
 
 builder.Services.AddDbContext<ApplicationDbContext>(
     options =>
@@ -23,18 +25,19 @@ builder.Services.AddDbContext<ApplicationDbContext>(
         options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
     });
 
-builder.Services.Configure<AuthSettings>(configuration.GetSection("AuthSettings"));
-
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
-
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
