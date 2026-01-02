@@ -2,6 +2,7 @@ using System.Text;
 using Scalar.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Diagnostics;
+using SimpleUserManagementApi;
 using SimpleUserManagementApi.Auth.Extensions;
 using SimpleUserManagementApi.Auth.JWT;
 using SimpleUserManagementApi.DataBase;

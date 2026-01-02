@@ -22,6 +22,7 @@ public class JwtService : IJwtService
             new Claim(ClaimTypes.Name, user.Name),
             new Claim(ClaimTypes.Email, user.Email),
         };
+        
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.SecretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -31,11 +32,11 @@ public class JwtService : IJwtService
             SigningCredentials = creds,
             Expires = DateTime.UtcNow.Add(_options.Value.TokenLifeTime)
         };
-                
-        var handler = new JwtSecurityTokenHandler();
-        var token = handler.CreateToken(descriptor);
-
-        return handler.WriteToken(token);
+        
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(descriptor);
+        
+        return tokenHandler.WriteToken(token);
     }
 }
 
