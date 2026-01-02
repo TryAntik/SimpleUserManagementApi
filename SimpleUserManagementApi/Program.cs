@@ -2,8 +2,7 @@ using System.Text;
 using Scalar.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using SimpleUserManagementApi.Auth.Extensions;
 using SimpleUserManagementApi.Auth.JWT;
 using SimpleUserManagementApi.DataBase;
 using SimpleUserManagementApi.Exceptions;
@@ -25,14 +24,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(
         options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
     });
 
-builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
+builder.Services.AddAuth(configuration);
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(); 
 
 var app = builder.Build();
 

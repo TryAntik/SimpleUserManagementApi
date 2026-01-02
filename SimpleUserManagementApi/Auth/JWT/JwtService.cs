@@ -22,20 +22,19 @@ public class JwtService : IJwtService
             new Claim(ClaimTypes.Name, user.Name),
             new Claim(ClaimTypes.Email, user.Email),
         };
-
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.SecretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var descriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.Add(_options.Value.TokenLifeTime),
-            SigningCredentials = creds
+            SigningCredentials = creds,
+            Expires = DateTime.UtcNow.Add(_options.Value.TokenLifeTime)
         };
-        
+                
         var handler = new JwtSecurityTokenHandler();
         var token = handler.CreateToken(descriptor);
-        
+
         return handler.WriteToken(token);
     }
 }
