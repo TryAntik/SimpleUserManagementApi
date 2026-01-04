@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SimpleUserManagementApi.DataBase.Models;
 using SimpleUserManagementApi.UserManager.DTOs;
 using SimpleUserManagementApi.UserManager.Interfaces;
 
 namespace SimpleUserManagementApi.UserManager.Controllers;
 
 [ApiController]
-[Authorize]
+[Authorize(Roles = nameof(UserRole.Admin))]
 [Route("api/users")]
 public class UserController : ControllerBase, IUserController
 {

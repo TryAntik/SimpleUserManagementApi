@@ -1,5 +1,7 @@
-﻿using System.Text;
+﻿using System.ComponentModel.Design;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SimpleUserManagementApi.Auth.JWT;
@@ -12,24 +14,24 @@ public static class AuthExtensions
 {
     public static IServiceCollection AddAuth(this IServiceCollection services, IConfiguration config)
     {
-        services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IJwtService, JwtService> ();
         services.Configure<JwtSettings>(config.GetSection("JwtSettings"));
 
-        var key = config["JwtSettings:SecretKey"].Trim();
-        var parsedKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
-        
-        if(parsedKey == null || parsedKey.Key.Length < 32)
-            throw new InvalidOperationException("Invalid secret key");
-        
+        var key = config["JwtSettings:SecretKey"];
+        var parsedKey =  new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtSettings:SecretKey"].Trim()));
+
+        if (key.Contains(' ') || key.Length < 32)
+            throw new InvalidOperationException("Invalid format for security key");
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
+            .AddJwtBearer(o =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters()
+                o.TokenValidationParameters = new TokenValidationParameters()
                 {
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
                     IssuerSigningKey = parsedKey
                 };
             });

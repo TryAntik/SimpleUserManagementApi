@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimpleUserManagementApi.DataBase.Models;
 using SimpleUserManagementApi.Models;
 
@@ -11,4 +12,12 @@ public sealed class ApplicationDbContext : DbContext
     
     public DbSet<UserEntity> Users { get; set; }
     public DbSet<PostEntity> Posts { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<UserEntity>()
+            .Property(u => u.Role)
+            .HasConversion(new EnumToStringConverter<UserRole>());
+        base.OnModelCreating(modelBuilder);
+    }
 }
