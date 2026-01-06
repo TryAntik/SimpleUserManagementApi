@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Design;
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore.Design;
@@ -12,21 +13,18 @@ namespace SimpleUserManagementApi.Auth.Extensions;
 
 public static class AuthExtensions
 {
-    public static IServiceCollection AddAuth(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddAuth(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<IJwtService, JwtService> ();
-        services.Configure<JwtSettings>(config.GetSection("JwtSettings"));
-
-        var key = config["JwtSettings:SecretKey"];
-        var parsedKey =  new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtSettings:SecretKey"].Trim()));
+        var key = configuration["JwtSettings:SecretKey"]?.Trim();
+        var parsedKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 
         if (key.Contains(' ') || key.Length < 32)
-            throw new InvalidOperationException("Invalid format for security key");
+            throw new InvalidOperationException("invalid key");
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(o =>
+            .AddJwtBearer(options =>
             {
-                o.TokenValidationParameters = new TokenValidationParameters()
+                options.TokenValidationParameters = new TokenValidationParameters()
                 {
                     ValidateIssuer = false,
                     ValidateAudience = false,
@@ -36,5 +34,11 @@ public static class AuthExtensions
                 };
             });
         return services;
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("AdminAccess", policy =>
+                policy.RequireRole("Admin"));
+        });
     }
 }

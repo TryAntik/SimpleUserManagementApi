@@ -23,4 +23,4 @@ public class UserEntity
     public List<PostEntity> Posts { get; set; } = [];
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-}
+}   

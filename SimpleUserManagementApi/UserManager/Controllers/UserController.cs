@@ -7,7 +7,7 @@ using SimpleUserManagementApi.UserManager.Interfaces;
 namespace SimpleUserManagementApi.UserManager.Controllers;
 
 [ApiController]
-[Authorize(Roles = nameof(UserRole.Admin))]
+[Authorize(Policy = "AdminAccess")]
 [Route("api/users")]
 public class UserController : ControllerBase, IUserController
 {

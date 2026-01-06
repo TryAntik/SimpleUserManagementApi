@@ -47,7 +47,8 @@ public class UserService : IUserService
         
         if (request.Name.Any(c => c == ' ')) throw new Exception("Name cannot contain spaces");
         if (request.Password.Any(c => c == ' ')) throw new Exception("Password cannot contain spaces");
-        if (request.Email.Count(c => c == '.') != 1) throw new Exception("Invalid email format");
+        if (request.Email.Count(c => c == '.')  != 1 ||
+            request.Email.Count(c => c == '@') != 1) throw new Exception("Invalid email format");
         
         var createUserDTO = new CreateUserDTO(
             request.Name,
