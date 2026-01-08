@@ -6,8 +6,8 @@ namespace SimpleUserManagementApi.UserManager.Interfaces;
 
 public interface IUserService
 {
-    Task RegisterUserAsync(RegisterDTO request);
-    Task<string> LoginUserAsync(LoginDTO request);
+    Task RegisterUserAsync(RegisterRequestDTO requestDto);
+    Task<LoginResponseDTO> LoginUserAsync(LoginRequestDTO request);
     Task<List<UserDTO>> GetAllUsersAsync();
     Task<UserDTO?> GetUserByIdAsync(Guid id);
     Task AddUserAsync(CreateUserDTO user);

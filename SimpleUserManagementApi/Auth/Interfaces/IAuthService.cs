@@ -5,5 +5,5 @@ namespace SimpleUserManagementApi.Auth.Interfaces;
 
 public interface IAuthService
 {
-    Task<ActionResult> Register(RegisterDTO request);
+    Task<ActionResult> Register(RegisterRequestDTO requestDto);
 }

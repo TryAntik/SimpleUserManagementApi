@@ -12,7 +12,9 @@ public sealed class ApplicationDbContext : DbContext
     
     public DbSet<UserEntity> Users { get; set; }
     public DbSet<PostEntity> Posts { get; set; }
-
+    
+    public DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<UserEntity>()

@@ -19,8 +19,10 @@ public class UserEntity
     [MaxLength(30)]
     public string Email { get; set; } = string.Empty;
 
-    public UserRole Role { get; set; } = default;
+    public UserRole Role { get; set; } = default; // User
+    
     public List<PostEntity> Posts { get; set; } = [];
-
+    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
 }   

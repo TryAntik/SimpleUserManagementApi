@@ -1,5 +1,6 @@
 ﻿using SimpleUserManagementApi.Auth.DTOs;
 using SimpleUserManagementApi.Auth.JWT;
+using SimpleUserManagementApi.Auth.RefreshToken;
 using SimpleUserManagementApi.DataBase.Models;
 using SimpleUserManagementApi.Exceptions;
 using SimpleUserManagementApi.UserManager.DTOs;
@@ -11,11 +12,13 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IJwtService _jwtService;
+    private readonly IRefreshTokenService _refreshTokenService;
 
-    public UserService(IUserRepository userRepository, IJwtService jwtService)
+    public UserService(IUserRepository userRepository, IJwtService jwtService, IRefreshTokenService refreshTokenService)
     {
         _userRepository = userRepository;
         _jwtService = jwtService;
+        _refreshTokenService = refreshTokenService;
     }
 
     public async Task<List<UserDTO>> GetAllUsersAsync()
@@ -39,35 +42,38 @@ public class UserService : IUserService
         return new UserDTO(user.Id, user.Name, user.Email, user.CreatedAt);
     }
 
-    public async Task RegisterUserAsync(RegisterDTO request)
+    public async Task RegisterUserAsync(RegisterRequestDTO requestDto)
     {
-        var userExists = await _userRepository.CheckUserExistsAsync(request.Email);
+        var userExists = await _userRepository.CheckUserExistsAsync(requestDto.Email);
         
-        if (userExists) throw new Exception($"user with email {request.Email} is already registered");
+        if (userExists) throw new Exception($"user with email {requestDto.Email} is already registered");
         
-        if (request.Name.Any(c => c == ' ')) throw new Exception("Name cannot contain spaces");
-        if (request.Password.Any(c => c == ' ')) throw new Exception("Password cannot contain spaces");
-        if (request.Email.Count(c => c == '.')  != 1 ||
-            request.Email.Count(c => c == '@') != 1) throw new Exception("Invalid email format");
+        if (requestDto.Name.Any(c => c == ' ')) throw new Exception("Name cannot contain spaces");
+        if (requestDto.Password.Any(c => c == ' ')) throw new Exception("Password cannot contain spaces");
+        if (requestDto.Email.Count(c => c == '.')  != 1 ||
+            requestDto.Email.Count(c => c == '@') != 1) throw new Exception("Invalid email format");
         
         var createUserDTO = new CreateUserDTO(
-            request.Name,
-            request.Email,
-            BCrypt.Net.BCrypt.HashPassword(request.Password)
+            requestDto.Name,
+            requestDto.Email,
+            BCrypt.Net.BCrypt.HashPassword(requestDto.Password)
         );
 
         await AddUserAsync(createUserDTO);
     }
     
-    public async Task<string> LoginUserAsync(LoginDTO request)
+    public async Task<LoginResponseDTO> LoginUserAsync(LoginRequestDTO request)
     {
         var user = await _userRepository.GetUserByEmailAsync(request.Email);
         if(user is null) throw new NotFoundException($"user with email {request.Email} not found");
         
         var validPassword = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
-        if(!validPassword) throw new UnauthorizedAccessException($"invalid password"); 
-
-        return _jwtService.GenerateToken(user);
+        if(!validPassword) throw new UnauthorizedAccessException($"invalid password");
+        
+        var accessToken = _jwtService.GenerateToken(user);
+        var refreshTokenEntity = await _refreshTokenService.CreateTokenAsync(user.Id);
+        
+        return new LoginResponseDTO(accessToken, refreshTokenEntity.Token);
     }
 
     public async Task AddUserAsync(CreateUserDTO userDTO)

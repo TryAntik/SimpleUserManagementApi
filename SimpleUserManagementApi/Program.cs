@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using SimpleUserManagementApi;
 using SimpleUserManagementApi.Auth.Extensions;
 using SimpleUserManagementApi.Auth.JWT;
+using SimpleUserManagementApi.Auth.RefreshToken;
 using SimpleUserManagementApi.DataBase;
 using SimpleUserManagementApi.Exceptions;
 using SimpleUserManagementApi.PostManager.Services;
@@ -29,14 +30,14 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+builder.Services.Configure<RefreshTokenSettings>(configuration.GetSection("RefeshTokenSettings"));
+
 builder.Services.AddAuth(configuration);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi(); 
 
 var app = builder.Build();
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
@@ -45,22 +46,7 @@ if (app.Environment.IsDevelopment())
     app.MapGet("/", () => Results.Redirect("/scalar"));
 }
 
-    app.UseExceptionHandler(errorApp =>
-    {
-        errorApp.Run(async context =>
-        {
-            var exception = context.Features.Get<IExceptionHandlerPathFeature>()?.Error;
-            context.Response.StatusCode = exception switch
-            {
-                NotFoundException => 404,
-                ArgumentException => 400,
-                _ => 500
-            };
-            context.Response.ContentType = "application/json";
-            var response = new { error = exception?.Message };
-            await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(response));
-        });
-    });
+app.UseExceptionHandler(errorApp => { errorApp.Run(async context => { var exception = context.Features.Get<IExceptionHandlerPathFeature>()?.Error; context.Response.StatusCode = exception switch { NotFoundException => 404, ArgumentException => 400, Pasxalka => 148, _ => 500 }; context.Response.ContentType = "application/json"; var response = new { error = exception?.Message }; await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(response)); }); });
 
 
 app.UseHttpsRedirection();

@@ -15,30 +15,33 @@ public static class AuthExtensions
 {
     public static IServiceCollection AddAuth(this IServiceCollection services, IConfiguration configuration)
     {
-        var key = configuration["JwtSettings:SecretKey"]?.Trim();
-        var parsedKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+        services.AddScoped<IJwtService, JwtService>();
+        services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 
-        if (key.Contains(' ') || key.Length < 32)
-            throw new InvalidOperationException("invalid key");
+        var key = configuration["JwtSettings:SecretKey"];
+        
+        if(string.IsNullOrWhiteSpace(key) || key.Length < 32 || key.Contains(' '))
+            throw new InvalidOperationException("Invalid key format");
+        
+        var keyParsed = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters()
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    ValidateIssuerSigningKey = true,
                     ValidateLifetime = true,
-                    IssuerSigningKey = parsedKey
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = keyParsed
                 };
             });
-        return services;
 
         services.AddAuthorization(options =>
-        {
             options.AddPolicy("AdminAccess", policy =>
-                policy.RequireRole("Admin"));
-        });
+                policy.RequireClaim(ClaimTypes.Role, "Admin")));
+        
+        return services;
     }
-}
+} 
