@@ -89,7 +89,7 @@ public class RefreshTokenService : IRefreshTokenService
         var tokens = await _dbContext.RefreshTokens
             .Where(t => t.UserId == userId && t.Revoked == false)
             .ToListAsync(ct);
-        
+         
         foreach (var token in tokens)
             token.Revoked = true;
 
