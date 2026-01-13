@@ -4,11 +4,11 @@ namespace SimpleUserManagementApi.PostManager.Interfaces;
 
 public interface IPostService
 {
-    Task<List<PostDTO>> GetAllPostsAsync();
-    Task<PostDTO?> GetPostByIdAsync(Guid id);
-    Task<List<PostDTO>> GetAllPostsByUserIdAsync(Guid id);
+    Task<List<PostDTO>> GetAllPostsAsync(CancellationToken ct);
+    Task<PostDTO?> GetPostByIdAsync(Guid id, CancellationToken ct);
+    Task<List<PostDTO>> GetAllPostsByUserIdAsync(Guid id, CancellationToken ct);
     
-    Task AddPostAsync(CreatePostDTO post);
-    Task UpdatePostAsync(Guid id, UpdatePostDTO post);
-    Task DeletePostAsync(Guid id);
+    Task AddPostAsync(CreatePostDTO post, CancellationToken ct);
+    Task UpdatePostAsync(Guid id, UpdatePostDTO post, CancellationToken ct);
+    Task DeletePostAsync(Guid id, CancellationToken ct);
 }

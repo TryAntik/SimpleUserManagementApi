@@ -17,9 +17,9 @@ public class PostService : IPostService
         _userRepository = userRepository;
     }
 
-    public async Task<List<PostDTO>> GetAllPostsAsync()
+    public async Task<List<PostDTO>> GetAllPostsAsync(CancellationToken ct)
     {
-        var entityPosts = await _postRepository.GetAllPostsAsync();
+        var entityPosts = await _postRepository.GetAllPostsAsync(ct);
 
         return entityPosts.Select(a => new PostDTO(
             a.Id,
@@ -30,9 +30,9 @@ public class PostService : IPostService
         )).ToList();
     }
 
-    public async Task<PostDTO?> GetPostByIdAsync(Guid id)
+    public async Task<PostDTO?> GetPostByIdAsync(Guid id, CancellationToken ct)
     {
-        var entity = await _postRepository.GetPostByIdAsync(id);
+        var entity = await _postRepository.GetPostByIdAsync(id, ct);
 
         if (entity is null) throw new NotFoundException(
             $"post with id {id} not found");
@@ -45,9 +45,9 @@ public class PostService : IPostService
             entity.UserId);
     }
  
-    public async Task<List<PostDTO>> GetAllPostsByUserIdAsync(Guid userId)
+    public async Task<List<PostDTO>> GetAllPostsByUserIdAsync(Guid userId, CancellationToken ct)
     {
-        var entityPosts = await _postRepository.GetAllPostsByUserIdAsync(userId);
+        var entityPosts = await _postRepository.GetAllPostsByUserIdAsync(userId, ct);
     
         if (entityPosts is null || !entityPosts.Any())
             throw new NotFoundException($"Posts for user {userId} not found");
@@ -60,9 +60,9 @@ public class PostService : IPostService
             a.UserId)).ToList();
     }
 
-    public async Task AddPostAsync(CreatePostDTO post)
+    public async Task AddPostAsync(CreatePostDTO post, CancellationToken ct)
     {
-        var userExist = await _userRepository.GetUserByIdAsync(post.UserId);
+        var userExist = await _userRepository.GetUserByIdAsync(post.UserId, ct);
 
         if (userExist is null) throw new NotFoundException(
             $"user with id {post.UserId} not found");
@@ -74,12 +74,12 @@ public class PostService : IPostService
             UserId = post.UserId 
         };
 
-        await _postRepository.AddPostAsync(postEntity);
+        await _postRepository.AddPostAsync(postEntity, ct);
     }
 
-    public async Task UpdatePostAsync(Guid id, UpdatePostDTO post)
+    public async Task UpdatePostAsync(Guid id, UpdatePostDTO post, CancellationToken ct)
     {
-        var postEntity = await _postRepository.GetPostByIdAsync(id);
+        var postEntity = await _postRepository.GetPostByIdAsync(id, ct);
         
         if(postEntity is null) throw new NotFoundException(
             $"post with id {id} not found");
@@ -87,9 +87,9 @@ public class PostService : IPostService
         postEntity.Title = post.Title;
         postEntity.Content = post.Content;
         
-        await _postRepository.UpdatePostAsync(postEntity);
+        await _postRepository.UpdatePostAsync(postEntity, ct);
     }
 
-    public async Task DeletePostAsync(Guid id)
-        => await _postRepository.DeletePostAsync(id);
+    public async Task DeletePostAsync(Guid id, CancellationToken ct)
+        => await _postRepository.DeletePostAsync(id, ct);
 }

@@ -4,10 +4,10 @@ namespace SimpleUserManagementApi.PostManager.Interfaces;
 
 public interface IPostRepository
 {
-    Task<List<PostEntity>> GetAllPostsAsync();
-    Task<PostEntity?> GetPostByIdAsync(Guid postId);
-    Task<List<PostEntity>?> GetAllPostsByUserIdAsync(Guid userId);
-    Task AddPostAsync(PostEntity post);
-    Task UpdatePostAsync(PostEntity updated);
-    Task DeletePostAsync(Guid postId);
+    Task<List<PostEntity>> GetAllPostsAsync(CancellationToken ct);
+    Task<PostEntity?> GetPostByIdAsync(Guid postId, CancellationToken ct);
+    Task<List<PostEntity>?> GetAllPostsByUserIdAsync(Guid userId, CancellationToken ct);
+    Task AddPostAsync(PostEntity post, CancellationToken ct);
+    Task UpdatePostAsync(PostEntity updated, CancellationToken ct);
+    Task DeletePostAsync(Guid postId, CancellationToken ct);
 }   

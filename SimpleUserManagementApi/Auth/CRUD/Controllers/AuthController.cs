@@ -23,9 +23,9 @@ public class AuthController : ControllerBase, IAuthController
         => Ok(await _userService.LoginUserAsync(request, ct));
 
     [HttpPost("register")]
-    public async Task<ActionResult> Register([FromBody] RegisterRequestDTO requestDto)
+    public async Task<ActionResult> Register([FromBody] RegisterRequestDTO requestDto, CancellationToken ct)
     {
-        await _userService.RegisterUserAsync(requestDto); 
+        await _userService.RegisterUserAsync(requestDto, ct); 
         return Ok();
     }
 

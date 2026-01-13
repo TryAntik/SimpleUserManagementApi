@@ -16,35 +16,35 @@ public class PostController : ControllerBase, IPostController
         => _postService = postService;
     
     [HttpGet]
-    public async Task<ActionResult<List<PostDTO>>> GetAllPostsAsync()
-        => Ok(await _postService.GetAllPostsAsync());
+    public async Task<ActionResult<List<PostDTO>>> GetAllPostsAsync(CancellationToken ct)
+        => Ok(await _postService.GetAllPostsAsync(ct));
     
     [HttpGet("user/{id:guid}")]
-    public async Task<ActionResult<List<PostDTO>>> GetAllPostsByUserIdAsync(Guid id)
-        => Ok(await _postService.GetAllPostsByUserIdAsync(id));
+    public async Task<ActionResult<List<PostDTO>>> GetAllPostsByUserIdAsync(Guid id, CancellationToken ct)
+        => Ok(await _postService.GetAllPostsByUserIdAsync(id, ct));
     
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<PostDTO>> GetPostByIdAsync(Guid id)
-        => Ok(await _postService.GetPostByIdAsync(id));
+    public async Task<ActionResult<PostDTO>> GetPostByIdAsync(Guid id, CancellationToken ct)
+        => Ok(await _postService.GetPostByIdAsync(id, ct));
 
     [HttpPost]
-    public async Task<ActionResult> AddPostAsync([FromBody] CreatePostDTO post)
+    public async Task<ActionResult> AddPostAsync([FromBody] CreatePostDTO post, CancellationToken ct)
     {
-        await _postService.AddPostAsync(post);
+        await _postService.AddPostAsync(post, ct);
         return Ok();
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult> UpdatePostAsync(Guid id, [FromBody] UpdatePostDTO post)
+    public async Task<ActionResult> UpdatePostAsync(Guid id, [FromBody] UpdatePostDTO post, CancellationToken ct)
     {
-        await _postService.UpdatePostAsync(id, post);
+        await _postService.UpdatePostAsync(id, post, ct);
         return Ok();
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<ActionResult> DeletePostAsync(Guid id)
+    public async Task<ActionResult> DeletePostAsync(Guid id, CancellationToken ct)
     {
-        await _postService.DeletePostAsync(id);
+        await _postService.DeletePostAsync(id, ct);
         return Ok();
     }
 }

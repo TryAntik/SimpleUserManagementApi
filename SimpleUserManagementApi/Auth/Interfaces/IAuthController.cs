@@ -6,7 +6,7 @@ namespace SimpleUserManagementApi.Auth.Interfaces;
 
 public interface IAuthController
 {
-    Task<ActionResult> Register(RegisterRequestDTO requestDto);
+    Task<ActionResult> Register(RegisterRequestDTO requestDto, CancellationToken ct);
     Task<ActionResult<LoginResponseDTO>> Login(LoginRequestDTO request, CancellationToken ct);
     Task<ActionResult<RefreshResponseDTO>> RefreshToken(RefreshRequestDTO request, CancellationToken ct);
 }
