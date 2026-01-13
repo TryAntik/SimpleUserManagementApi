@@ -25,23 +25,23 @@ public class UserController : ControllerBase, IUserController
         => Ok(await _userService.GetUserByIdAsync(id, ct));
 
     [HttpPost]
-    public async Task<ActionResult> AddUserAsync([FromBody] CreateUserDTO user)
+    public async Task<ActionResult> AddUserAsync([FromBody] CreateUserDTO user, CancellationToken ct)
     {
-        await _userService.AddUserAsync(user);
+        await _userService.AddUserAsync(user, ct);
         return Ok();
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult> UpdateUserAsync(Guid id, [FromBody] UpdateUserDTO user)
+    public async Task<ActionResult> UpdateUserAsync(Guid id, [FromBody] UpdateUserDTO user, CancellationToken ct)
     {
-        await _userService.UpdateUserAsync(id, user);
+        await _userService.UpdateUserAsync(id, user, ct);
         return Ok();
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<ActionResult> DeleteUserAsync(Guid id)
+    public async Task<ActionResult> DeleteUserAsync(Guid id, CancellationToken ct)
     {
-        await _userService.DeleteUserAsync(id);
+        await _userService.DeleteUserAsync(id, ct);
         return Ok();
     }
 }

@@ -13,13 +13,13 @@ public class UserRepository : IUserRepository
     public UserRepository(ApplicationDbContext dbContext)
         => _dbContext = dbContext;
 
-    public async Task<bool> CheckUserExistsAsync(string email, string name)
+    public async Task<bool> CheckUserExistsAsync(string email, string name, CancellationToken ct = default)
         => await _dbContext.Users.AnyAsync(
             a => a.Email.ToLower() == email.ToLower() || 
-                 a.Name.ToLower() == name.ToLower());
+                 a.Name.ToLower() == name.ToLower(), ct);
 
-    public async Task<bool> CheckUserExistsAsync(string email)
-        => await _dbContext.Users.AnyAsync(a => a.Email.ToLower() == email.ToLower());
+    public async Task<bool> CheckUserExistsAsync(string email, CancellationToken ct = default)
+        => await _dbContext.Users.AnyAsync(a => a.Email.ToLower() == email.ToLower(), ct);
 
     public async Task<UserEntity?> GetUserByEmailAsync(string email, CancellationToken ct = default)
         => await _dbContext.Users.FirstOrDefaultAsync(a => a.Email.ToLower() == email.ToLower(), ct);
@@ -30,26 +30,26 @@ public class UserRepository : IUserRepository
     public async Task<UserEntity?> GetUserByIdAsync(Guid id, CancellationToken ct = default)
         => await _dbContext.Users.FirstOrDefaultAsync(a => a.Id == id, ct);
     
-    public async Task AddUserAsync(UserEntity user)
+    public async Task AddUserAsync(UserEntity user, CancellationToken ct = default)
     { 
         _dbContext.Users.Add(user);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(ct);
     }
 
-    public async Task UpdateUserAsync(UserEntity updatedUser)
+    public async Task UpdateUserAsync(UserEntity updatedUser, CancellationToken ct = default)
     {
         _dbContext.Users.Update(updatedUser);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(ct);
     }
 
-    public async Task DeleteUserAsync(Guid id)
+    public async Task DeleteUserAsync(Guid id, CancellationToken ct = default)
     {
-        var user = await _dbContext.Users.FirstOrDefaultAsync(a => a.Id == id);
+        var user = await _dbContext.Users.FirstOrDefaultAsync(a => a.Id == id, ct);
 
         if (user == null)
             throw new NotFoundException($"user with id {id} not found");
 
         _dbContext.Users.Remove(user);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(ct);
     }
 }

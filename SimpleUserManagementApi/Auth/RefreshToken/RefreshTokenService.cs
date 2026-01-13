@@ -84,7 +84,7 @@ public class RefreshTokenService : IRefreshTokenService
         return tokenDb;
     }
 
-    public async Task<int> RevokeAllUserTokensAsync(Guid userId, CancellationToken ct)
+    public async Task<int> RevokeAllUserTokensAsync(Guid userId, CancellationToken ct) 
     {
         var tokens = await _dbContext.RefreshTokens
             .Where(t => t.UserId == userId && t.Revoked == false)
@@ -97,10 +97,6 @@ public class RefreshTokenService : IRefreshTokenService
         return tokens.Count;
     }
 }
-
-
-
-
 
 
 

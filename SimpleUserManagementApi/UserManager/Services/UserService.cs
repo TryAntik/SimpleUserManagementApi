@@ -42,9 +42,9 @@ public class UserService : IUserService
         return new UserDTO(user.Id, user.Name, user.Email, user.CreatedAt);
     }
 
-    public async Task RegisterUserAsync(RegisterRequestDTO requestDto)
+    public async Task RegisterUserAsync(RegisterRequestDTO requestDto, CancellationToken ct)
     {
-        var userExists = await _userRepository.CheckUserExistsAsync(requestDto.Email);
+        var userExists = await _userRepository.CheckUserExistsAsync(requestDto.Email, ct);
         
         if (userExists) throw new Exception($"user with email {requestDto.Email} is already registered");
         
@@ -59,24 +59,24 @@ public class UserService : IUserService
             BCrypt.Net.BCrypt.HashPassword(requestDto.Password)
         );
 
-        await AddUserAsync(createUserDTO);
+        await AddUserAsync(createUserDTO, ct);
     }
     
-    public async Task<LoginResponseDTO> LoginUserAsync(LoginRequestDTO request)
+    public async Task<LoginResponseDTO> LoginUserAsync(LoginRequestDTO request, CancellationToken ct)
     {
-        var user = await _userRepository.GetUserByEmailAsync(request.Email, default);
+        var user = await _userRepository.GetUserByEmailAsync(request.Email, ct);
         if(user is null) throw new NotFoundException($"user with email {request.Email} not found");
         
         var validPassword = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
         if(!validPassword) throw new UnauthorizedAccessException($"invalid password");
         
         var accessToken = _jwtService.GenerateToken(user);
-        var refreshTokenEntity = await _refreshTokenService.CreateTokenAsync(user.Id);
+        var refreshTokenEntity = await _refreshTokenService.CreateTokenAsync(user.Id, ct);
         
         return new LoginResponseDTO(accessToken, refreshTokenEntity.Token);
     }
 
-    public async Task AddUserAsync(CreateUserDTO userDTO)
+    public async Task AddUserAsync(CreateUserDTO userDTO, CancellationToken ct)
     {
         var userEntity = new UserEntity
         {
@@ -85,12 +85,12 @@ public class UserService : IUserService
             PasswordHash = userDTO.PasswordHash
         };
 
-        await _userRepository.AddUserAsync(userEntity); 
+        await _userRepository.AddUserAsync(userEntity, ct); 
     }
 
-    public async Task UpdateUserAsync(Guid id, UpdateUserDTO userDTO)
+    public async Task UpdateUserAsync(Guid id, UpdateUserDTO userDTO, CancellationToken ct)
     {
-        var user = await _userRepository.GetUserByIdAsync(id, default);
+        var user = await _userRepository.GetUserByIdAsync(id, ct);
         
         if(user is null) throw new NotFoundException(
             $"user with id {id} not found");
@@ -98,7 +98,7 @@ public class UserService : IUserService
         user.Name = userDTO.Name;
         user.Email = userDTO.Email;
         
-        await _userRepository.UpdateUserAsync(user);
+        await _userRepository.UpdateUserAsync(user, ct);
     }
 
     public async Task<RefreshResponseDTO> RefreshTokenAsync(RefreshRequestDTO request, CancellationToken ct)
@@ -106,23 +106,23 @@ public class UserService : IUserService
         var userId = _jwtService.GetUserIdFromToken(request.AccessToken); 
         var currentRefreshToken = request.RefreshToken;
         
-        var isValidRefreshToken = await _refreshTokenService.IsValidTokenAsync(currentRefreshToken, userId);
+        var isValidRefreshToken = await _refreshTokenService.IsValidTokenAsync(currentRefreshToken, userId, ct);
         if (!isValidRefreshToken) throw new UnauthorizedAccessException("Invalid refresh token");
         
-        var refreshEntity = await _refreshTokenService.GetTokenAsync(currentRefreshToken, userId);
+        var refreshEntity = await _refreshTokenService.GetTokenAsync(currentRefreshToken, userId, ct);
         if (refreshEntity is null) throw new UnauthorizedAccessException("Invalid refresh token");
 
-        await _refreshTokenService.RevokeTokenAsync(refreshEntity.Id);
+        await _refreshTokenService.RevokeTokenAsync(refreshEntity.Id, ct);
 
         var userEntity = await _userRepository.GetUserByIdAsync(userId, ct);
         if(userEntity is null) throw new NotFoundException($"user with id {userId} not found");
         
         var newAccessToken = _jwtService.GenerateToken(userEntity);
-        var newRefreshToken = await _refreshTokenService.CreateTokenAsync(userId);
+        var newRefreshToken = await _refreshTokenService.CreateTokenAsync(userId, ct);
         
         return new RefreshResponseDTO(newAccessToken, newRefreshToken.Token);
     }
 
-    public async Task DeleteUserAsync(Guid id)
-        => await _userRepository.DeleteUserAsync(id);
+    public async Task DeleteUserAsync(Guid id, CancellationToken ct)
+        => await _userRepository.DeleteUserAsync(id, ct);
 }

@@ -19,8 +19,8 @@ public class AuthController : ControllerBase, IAuthController
         => _userService = userService;
 
     [HttpPost("login")]
-    public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequestDTO request) 
-        => Ok(await _userService.LoginUserAsync(request));
+    public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequestDTO request, CancellationToken ct) 
+        => Ok(await _userService.LoginUserAsync(request, ct));
 
     [HttpPost("register")]
     public async Task<ActionResult> Register([FromBody] RegisterRequestDTO requestDto)
@@ -30,11 +30,11 @@ public class AuthController : ControllerBase, IAuthController
     }
 
     [HttpPost("refresh")]
-    public async Task<ActionResult<RefreshResponseDTO>> RefreshToken([FromBody] RefreshRequestDTO request)
+    public async Task<ActionResult<RefreshResponseDTO>> RefreshToken([FromBody] RefreshRequestDTO request, CancellationToken ct)
     {
         try
         {
-            var response = await _userService.RefreshTokenAsync(request);
+            var response = await _userService.RefreshTokenAsync(request, ct);
             return Ok(response);
         }
         catch (UnauthorizedAccessException)
