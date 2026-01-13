@@ -21,9 +21,9 @@ public class UserService : IUserService
         _refreshTokenService = refreshTokenService;
     }
 
-    public async Task<List<UserDTO>> GetAllUsersAsync()
+    public async Task<List<UserDTO>> GetAllUsersAsync(CancellationToken ct)
     {
-        var users = await _userRepository.GetAllUsersAsync();
+        var users = await _userRepository.GetAllUsersAsync(ct);
 
         return users.Select(a => new UserDTO(
             a.Id,
@@ -32,9 +32,9 @@ public class UserService : IUserService
             a.CreatedAt)).ToList();
     }
 
-    public async Task<UserDTO> GetUserByIdAsync(Guid userId)
+    public async Task<UserDTO> GetUserByIdAsync(Guid userId, CancellationToken ct)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId);
+        var user = await _userRepository.GetUserByIdAsync(userId, ct);
 
         if (user is null) throw new NotFoundException(  
             $"user with id {userId} not found");
@@ -64,7 +64,7 @@ public class UserService : IUserService
     
     public async Task<LoginResponseDTO> LoginUserAsync(LoginRequestDTO request)
     {
-        var user = await _userRepository.GetUserByEmailAsync(request.Email);
+        var user = await _userRepository.GetUserByEmailAsync(request.Email, default);
         if(user is null) throw new NotFoundException($"user with email {request.Email} not found");
         
         var validPassword = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
@@ -90,7 +90,7 @@ public class UserService : IUserService
 
     public async Task UpdateUserAsync(Guid id, UpdateUserDTO userDTO)
     {
-        var user = await _userRepository.GetUserByIdAsync(id);
+        var user = await _userRepository.GetUserByIdAsync(id, default);
         
         if(user is null) throw new NotFoundException(
             $"user with id {id} not found");
@@ -99,6 +99,28 @@ public class UserService : IUserService
         user.Email = userDTO.Email;
         
         await _userRepository.UpdateUserAsync(user);
+    }
+
+    public async Task<RefreshResponseDTO> RefreshTokenAsync(RefreshRequestDTO request, CancellationToken ct)
+    {
+        var userId = _jwtService.GetUserIdFromToken(request.AccessToken); 
+        var currentRefreshToken = request.RefreshToken;
+        
+        var isValidRefreshToken = await _refreshTokenService.IsValidTokenAsync(currentRefreshToken, userId);
+        if (!isValidRefreshToken) throw new UnauthorizedAccessException("Invalid refresh token");
+        
+        var refreshEntity = await _refreshTokenService.GetTokenAsync(currentRefreshToken, userId);
+        if (refreshEntity is null) throw new UnauthorizedAccessException("Invalid refresh token");
+
+        await _refreshTokenService.RevokeTokenAsync(refreshEntity.Id);
+
+        var userEntity = await _userRepository.GetUserByIdAsync(userId, ct);
+        if(userEntity is null) throw new NotFoundException($"user with id {userId} not found");
+        
+        var newAccessToken = _jwtService.GenerateToken(userEntity);
+        var newRefreshToken = await _refreshTokenService.CreateTokenAsync(userId);
+        
+        return new RefreshResponseDTO(newAccessToken, newRefreshToken.Token);
     }
 
     public async Task DeleteUserAsync(Guid id)

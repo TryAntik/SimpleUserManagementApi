@@ -17,12 +17,12 @@ public class UserController : ControllerBase, IUserController
         => _userService = userService;
 
     [HttpGet]
-    public async Task<ActionResult<List<UserDTO>>> GetAllUsersAsync()
-        => Ok(await _userService.GetAllUsersAsync());
+    public async Task<ActionResult<List<UserDTO>>> GetAllUsersAsync(CancellationToken ct)
+        => Ok(await _userService.GetAllUsersAsync(ct));
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<UserDTO>> GetUserByIdAsync(Guid id)
-        => Ok(await _userService.GetUserByIdAsync(id));
+    public async Task<ActionResult<UserDTO>> GetUserByIdAsync(Guid id, CancellationToken ct)
+        => Ok(await _userService.GetUserByIdAsync(id, ct));
 
     [HttpPost]
     public async Task<ActionResult> AddUserAsync([FromBody] CreateUserDTO user)

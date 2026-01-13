@@ -21,14 +21,14 @@ public class UserRepository : IUserRepository
     public async Task<bool> CheckUserExistsAsync(string email)
         => await _dbContext.Users.AnyAsync(a => a.Email.ToLower() == email.ToLower());
 
-    public async Task<UserEntity?> GetUserByEmailAsync(string email)
-        => await _dbContext.Users.FirstOrDefaultAsync(a => a.Email.ToLower() == email.ToLower());
+    public async Task<UserEntity?> GetUserByEmailAsync(string email, CancellationToken ct = default)
+        => await _dbContext.Users.FirstOrDefaultAsync(a => a.Email.ToLower() == email.ToLower(), ct);
     
-    public async Task<List<UserEntity>> GetAllUsersAsync()      
-        => await _dbContext.Users.ToListAsync();
+    public async Task<List<UserEntity>> GetAllUsersAsync(CancellationToken ct = default)      
+        => await _dbContext.Users.ToListAsync(ct);
     
-    public async Task<UserEntity?> GetUserByIdAsync(Guid id)
-        => await _dbContext.Users.FirstOrDefaultAsync(a => a.Id == id);
+    public async Task<UserEntity?> GetUserByIdAsync(Guid id, CancellationToken ct = default)
+        => await _dbContext.Users.FirstOrDefaultAsync(a => a.Id == id, ct);
     
     public async Task AddUserAsync(UserEntity user)
     { 
