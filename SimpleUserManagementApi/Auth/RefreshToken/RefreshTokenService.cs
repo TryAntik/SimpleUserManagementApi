@@ -49,29 +49,23 @@ public class RefreshTokenService : IRefreshTokenService
         return tokenDTO;
     }
 
-    public async Task<RefreshTokenEntity?> GetTokenAsync(string token, Guid userId, CancellationToken ct)
+    public async Task<RefreshTokenEntity?> GetTokenAsync(RefreshTokenDTO dto, CancellationToken ct)
     {
-        var activeTokens = await _dbContext.RefreshTokens
-            .Where(t =>
-                t.UserId == userId
-                && !t.Revoked
-                && t.Expires > DateTime.UtcNow)
-            .ToListAsync(ct);
+        var token = await _dbContext.RefreshTokens
+            .FirstOrDefaultAsync(t => t.Id == dto.Id, ct);
 
-        return activeTokens.FirstOrDefault(t => BCrypt.Net.BCrypt.Verify(token, t.TokenHash));
+        if (token is null) return null;
+        if (token.Revoked) return null;
+        if (token.Expires < DateTime.UtcNow) return null;
+        if (token.UserId != dto.UserId) return null;
+
+        if (BCrypt.Net.BCrypt.Verify(dto.Token, token.TokenHash)) return token;
+        
+        return null;
     }
 
-    public async Task<bool> IsValidTokenAsync(string token, Guid userId, CancellationToken ct)
-    {
-        var activeTokens = await _dbContext.RefreshTokens
-            .Where(t =>
-                t.UserId == userId
-                && !t.Revoked
-                && t.Expires > DateTime.UtcNow)
-            .ToListAsync(ct);
-
-        return activeTokens.Any(t => BCrypt.Net.BCrypt.Verify(token, t.TokenHash));
-    }
+    public async Task<bool> IsValidTokenAsync(RefreshTokenDTO dto, CancellationToken ct)
+        => await GetTokenAsync(dto, ct) != null;
 
     public async Task<RefreshTokenEntity> RevokeTokenAsync(Guid tokenId, CancellationToken ct)
     {
@@ -97,17 +91,3 @@ public class RefreshTokenService : IRefreshTokenService
         return tokens.Count;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

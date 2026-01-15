@@ -103,24 +103,18 @@ public class UserService : IUserService
 
     public async Task<RefreshResponseDTO> RefreshTokenAsync(RefreshRequestDTO request, CancellationToken ct)
     {
-        var userId = _jwtService.GetUserIdFromToken(request.AccessToken); 
-        var currentRefreshToken = request.RefreshToken;
-        
-        var isValidRefreshToken = await _refreshTokenService.IsValidTokenAsync(currentRefreshToken, userId, ct);
-        if (!isValidRefreshToken) throw new UnauthorizedAccessException("Invalid refresh token");
-        
-        var refreshEntity = await _refreshTokenService.GetTokenAsync(currentRefreshToken, userId, ct);
+        var refreshEntity = await _refreshTokenService.GetTokenAsync(request.RefreshTokenDto, ct);
         if (refreshEntity is null) throw new UnauthorizedAccessException("Invalid refresh token");
 
         await _refreshTokenService.RevokeTokenAsync(refreshEntity.Id, ct);
 
-        var userEntity = await _userRepository.GetUserByIdAsync(userId, ct);
-        if(userEntity is null) throw new NotFoundException($"user with id {userId} not found");
-        
-        var newAccessToken = _jwtService.GenerateToken(userEntity);
-        var newRefreshToken = await _refreshTokenService.CreateTokenAsync(userId, ct);
-        
-        return new RefreshResponseDTO(newAccessToken, newRefreshToken.Token);
+        var userEntity = await _userRepository.GetUserByIdAsync(refreshEntity.UserId, ct);
+        if (userEntity is null) throw new NotFoundException($"User with id {refreshEntity.UserId} was not found");
+
+        var newJwt = _jwtService.GenerateToken(userEntity);
+        var newRefreshToken = await _refreshTokenService.CreateTokenAsync(userEntity.Id, ct);
+
+        return new RefreshResponseDTO(newJwt, newRefreshToken.Token);
     }
 
     public async Task DeleteUserAsync(Guid id, CancellationToken ct)

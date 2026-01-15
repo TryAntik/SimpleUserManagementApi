@@ -39,23 +39,39 @@ public class JwtService : IJwtService
 
         return tokenHandler.WriteToken(token);
     }
-    
-    public Guid GetUserIdFromToken(string token)
+
+    public bool TryGetUserIdFromToken(string token, out Guid userId)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var jsonToken = tokenHandler.ReadJwtToken(token);
+        try
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.SecretKey));
 
-        var userId = jsonToken.Claims.FirstOrDefault(c =>
-            c.Type == ClaimTypes.NameIdentifier);
+            var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters()
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateIssuerSigningKey = true,
+                ValidateLifetime = true,
+                IssuerSigningKey = secretKey
+            }, out _);
 
-        if (userId is null) throw new NotFoundException("ID Not found");
+            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (Guid.TryParse(userIdClaim, out userId)) return true;
 
-        return Guid.Parse(userId.Value);
+            userId = default;
+            return false;
+        }
+        catch
+        {
+            userId = default;
+            return false;
+        }
     }
 }
 
 public interface IJwtService
 {
     string GenerateToken(UserEntity user);
-    Guid GetUserIdFromToken(string token);
+    bool TryGetUserIdFromToken(string token, out Guid userId);
 }
