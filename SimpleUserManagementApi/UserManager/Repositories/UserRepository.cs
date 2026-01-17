@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Reflection.Metadata;
+using Microsoft.EntityFrameworkCore;
 using SimpleUserManagementApi.DataBase;
 using SimpleUserManagementApi.DataBase.Models;
 using SimpleUserManagementApi.Exceptions;
@@ -14,13 +15,14 @@ public class UserRepository : IUserRepository
         => _dbContext = dbContext;
 
     public async Task<bool> CheckUserExistsAsync(string email, string name, CancellationToken ct = default)
-        => await _dbContext.Users.AnyAsync(
-            a => a.Email.ToLower() == email.ToLower() || 
-                 a.Name.ToLower() == name.ToLower(), ct);
-
+        => await _dbContext.Users.AnyAsync(u =>
+            u.Email == email.ToLowerInvariant().Trim()
+            && u.Name == name.Trim());
+    
     public async Task<bool> CheckUserExistsAsync(string email, CancellationToken ct = default)
-        => await _dbContext.Users.AnyAsync(a => a.Email.ToLower() == email.ToLower(), ct);
-
+        => await _dbContext.Users.AnyAsync(u => 
+            u.Email == email.ToLowerInvariant().Trim(), ct);
+    
     public async Task<UserEntity?> GetUserByEmailAsync(string email, CancellationToken ct = default)
         => await _dbContext.Users.FirstOrDefaultAsync(a => a.Email.ToLower() == email.ToLower(), ct);
     

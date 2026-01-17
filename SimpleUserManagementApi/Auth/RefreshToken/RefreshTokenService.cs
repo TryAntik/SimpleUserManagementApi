@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using SimpleUserManagementApi.Auth.DTOs;
 using SimpleUserManagementApi.DataBase;
 using SimpleUserManagementApi.DataBase.Models;
 using SimpleUserManagementApi.Exceptions;
@@ -63,7 +64,7 @@ public class RefreshTokenService : IRefreshTokenService
         
         return null;
     }
-
+    
     public async Task<RefreshTokenEntity> RevokeTokenAsync(Guid tokenId, CancellationToken ct)
     {
         var tokenDb = await _dbContext.RefreshTokens.FirstOrDefaultAsync(t => t.Id == tokenId, ct);

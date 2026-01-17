@@ -50,12 +50,12 @@ public class UserService : IUserService
         
         if (requestDto.Name.Any(c => c == ' ')) throw new Exception("Name cannot contain spaces");
         if (requestDto.Password.Any(c => c == ' ')) throw new Exception("Password cannot contain spaces");
-        if (requestDto.Email.Count(c => c == '.')  != 1 ||
-            requestDto.Email.Count(c => c == '@') != 1) throw new Exception("Invalid email format");
+        if (requestDto.Email.Count(c => c == '.')  != 1 || requestDto.Email.Count(c => c == '@') != 1)
+            throw new Exception("Invalid email format");
         
         var createUserDTO = new CreateUserDTO(
-            requestDto.Name,
-            requestDto.Email,
+            requestDto.Email.ToLowerInvariant().Trim(),
+            requestDto.Name.Trim(),
             BCrypt.Net.BCrypt.HashPassword(requestDto.Password)
         );
 

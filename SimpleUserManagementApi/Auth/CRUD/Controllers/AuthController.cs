@@ -14,9 +14,13 @@ namespace SimpleUserManagementApi.Auth.Controllers;
 public class AuthController : ControllerBase, IAuthController
 {
     private readonly IUserService _userService;
+    private readonly IRefreshTokenService _refreshTokenService;
 
-    public AuthController(IUserService userService)
-        => _userService = userService;
+    public AuthController(IUserService userService, IRefreshTokenService refreshTokenService)
+    {
+        _userService = userService;
+        _refreshTokenService = refreshTokenService;
+    }
 
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequestDTO request, CancellationToken ct) 
@@ -25,7 +29,14 @@ public class AuthController : ControllerBase, IAuthController
     [HttpPost("register")]
     public async Task<ActionResult> Register([FromBody] RegisterRequestDTO requestDto, CancellationToken ct)
     {
-        await _userService.RegisterUserAsync(requestDto, ct); 
+        await _userService.RegisterUserAsync(requestDto, ct);
+        return Ok();
+    }
+
+    [HttpPost("logout")]
+    public async Task<ActionResult> Logout(LogoutRequestDTO request, CancellationToken ct)
+    {
+        await _refreshTokenService.RevokeTokenAsync(request.tokenId, ct);
         return Ok();
     }
 

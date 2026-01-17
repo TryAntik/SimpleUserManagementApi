@@ -20,6 +20,11 @@ public sealed class ApplicationDbContext : DbContext
         modelBuilder.Entity<UserEntity>()
             .Property(u => u.Role)
             .HasConversion(new EnumToStringConverter<UserRole>());
+
+        modelBuilder.Entity<UserEntity>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
+        
         base.OnModelCreating(modelBuilder);
     }
 }
