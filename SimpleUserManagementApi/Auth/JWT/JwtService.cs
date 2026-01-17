@@ -39,39 +39,9 @@ public class JwtService : IJwtService
 
         return tokenHandler.WriteToken(token);
     }
-
-    public bool TryGetUserIdFromToken(string token, out Guid userId)
-    {
-        try
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.SecretKey));
-
-            var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters()
-            {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateIssuerSigningKey = true,
-                ValidateLifetime = true,
-                IssuerSigningKey = secretKey
-            }, out _);
-
-            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (Guid.TryParse(userIdClaim, out userId)) return true;
-
-            userId = default;
-            return false;
-        }
-        catch
-        {
-            userId = default;
-            return false;
-        }
-    }
 }
 
 public interface IJwtService
 {
     string GenerateToken(UserEntity user);
-    bool TryGetUserIdFromToken(string token, out Guid userId);
 }

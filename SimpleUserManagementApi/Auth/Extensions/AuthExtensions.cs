@@ -26,14 +26,14 @@ public static class AuthExtensions
         var keyParsed = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
+            .AddJwtBearer(o =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters
+                o.TokenValidationParameters = new TokenValidationParameters()
                 {
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
                     IssuerSigningKey = keyParsed
                 };
             });

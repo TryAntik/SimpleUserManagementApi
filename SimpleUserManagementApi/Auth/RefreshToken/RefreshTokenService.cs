@@ -64,9 +64,6 @@ public class RefreshTokenService : IRefreshTokenService
         return null;
     }
 
-    public async Task<bool> IsValidTokenAsync(RefreshTokenDTO dto, CancellationToken ct)
-        => await GetTokenAsync(dto, ct) != null;
-
     public async Task<RefreshTokenEntity> RevokeTokenAsync(Guid tokenId, CancellationToken ct)
     {
         var tokenDb = await _dbContext.RefreshTokens.FirstOrDefaultAsync(t => t.Id == tokenId, ct);
@@ -90,4 +87,7 @@ public class RefreshTokenService : IRefreshTokenService
         await _dbContext.SaveChangesAsync(ct);
         return tokens.Count;
     }
+    
+    public async Task<bool> IsValidTokenAsync(RefreshTokenDTO dto, CancellationToken ct) 
+        => await GetTokenAsync(dto, ct) != null;
 }
