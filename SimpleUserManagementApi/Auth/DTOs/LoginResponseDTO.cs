@@ -1,6 +1,8 @@
-﻿namespace SimpleUserManagementApi.Auth.DTOs;
+﻿using SimpleUserManagementApi.Auth.RefreshToken;
+
+namespace SimpleUserManagementApi.Auth.DTOs;
 
 public record LoginResponseDTO(
     string AccessToken,
-    string RefreshToken
+    RefreshTokenDTO RefreshToken
     );

@@ -44,7 +44,7 @@ public class AuthController : ControllerBase, IAuthController
     public async Task<ActionResult<RefreshResponseDTO>> RefreshToken([FromBody] RefreshRequestDTO request, CancellationToken ct)
     {
         try
-        {
+        {   
             var response = await _userService.RefreshTokenAsync(request, ct);
             return Ok(response);
         }

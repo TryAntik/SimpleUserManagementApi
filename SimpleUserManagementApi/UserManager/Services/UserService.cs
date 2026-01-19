@@ -71,9 +71,9 @@ public class UserService : IUserService
         if(!validPassword) throw new UnauthorizedAccessException($"invalid password");
         
         var accessToken = _jwtService.GenerateToken(user);
-        var refreshTokenEntity = await _refreshTokenService.CreateTokenAsync(user.Id, ct);
+        var refreshToken = await _refreshTokenService.CreateTokenAsync(user.Id, ct);
         
-        return new LoginResponseDTO(accessToken, refreshTokenEntity.Token);
+        return new LoginResponseDTO(accessToken, refreshToken);
     }
 
     public async Task AddUserAsync(CreateUserDTO userDTO, CancellationToken ct)
