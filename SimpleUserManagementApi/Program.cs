@@ -1,11 +1,8 @@
-using System.Text;
 using FluentValidation;
 using Scalar.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Diagnostics;
-using SimpleUserManagementApi;
 using SimpleUserManagementApi.Auth.Extensions;
-using SimpleUserManagementApi.Auth.JWT;
 using SimpleUserManagementApi.Auth.RefreshToken;
 using SimpleUserManagementApi.DataBase;
 using SimpleUserManagementApi.Exceptions;
@@ -15,6 +12,7 @@ using SimpleUserManagementApi.UserManager.Interfaces;
 using SimpleUserManagementApi.PostManager.Interfaces;
 using SimpleUserManagementApi.PostManager.Repositories;
 using SimpleUserManagementApi.UserManager.Repositories;
+using SimpleUserManagementApi.UserManager.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;

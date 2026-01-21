@@ -46,23 +46,17 @@ public class UserService : IUserService
     public async Task RegisterUserAsync(RegisterRequestDTO requestDto, CancellationToken ct)
     {
         var userExists = await _userRepository.CheckUserExistsAsync(requestDto.Email, ct);
-        
         if (userExists) throw new Exception($"user with email {requestDto.Email} is already registered");
-        
-        if (requestDto.Name.Any(c => c == ' ')) throw new Exception("Name cannot contain spaces");
-        if (requestDto.Password.Any(c => c == ' ')) throw new Exception("Password cannot contain spaces");
-        if (requestDto.Email.Count(c => c == '.')  != 1 || requestDto.Email.Count(c => c == '@') != 1)
-            throw new Exception("Invalid email format");
         
         var createUserDTO = new CreateUserDTO(
             requestDto.Email.ToLowerInvariant().Trim(),
             requestDto.Name.Trim(),
-            BCrypt.Net.BCrypt.HashPassword(requestDto.Password)
+            requestDto.Password
         );
 
         await AddUserAsync(createUserDTO, ct);
     }
-    
+
     public async Task<LoginResponseDTO> LoginUserAsync(LoginRequestDTO request, CancellationToken ct)
     {
         var user = await _userRepository.GetUserByEmailAsync(request.Email, ct);
@@ -81,7 +75,7 @@ public class UserService : IUserService
     {
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(userDTO.Password);
 
-        if (await _userRepository.GetUserByEmailAsync(userDTO.Email, ct) is not null)
+        if (await _userRepository.CheckUserExistsAsync(userDTO.Email, ct))
             throw new InvalidOperationException($"user with email {userDTO.Email} is already registered");
         
         var userEntity = new UserEntity

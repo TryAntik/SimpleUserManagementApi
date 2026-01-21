@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using SimpleUserManagementApi.Auth.DTOs;
@@ -15,11 +16,13 @@ public class AuthController : ControllerBase, IAuthController
 {
     private readonly IUserService _userService;
     private readonly IRefreshTokenService _refreshTokenService;
+    private readonly IValidator<RegisterRequestDTO> _registerValidator;
 
-    public AuthController(IUserService userService, IRefreshTokenService refreshTokenService)
+    public AuthController(IUserService userService, IRefreshTokenService refreshTokenService, IValidator<RegisterRequestDTO> registerValidator)
     {
         _userService = userService;
         _refreshTokenService = refreshTokenService;
+        _registerValidator = registerValidator;
     }
 
     [HttpPost("login")]
@@ -29,6 +32,9 @@ public class AuthController : ControllerBase, IAuthController
     [HttpPost("register")]
     public async Task<ActionResult> Register([FromBody] RegisterRequestDTO requestDto, CancellationToken ct)
     {
+        var result = await _registerValidator.ValidateAsync(requestDto, ct);
+        if (!result.IsValid) return BadRequest(result.ToDictionary());
+        
         await _userService.RegisterUserAsync(requestDto, ct);
         return Ok();
     }

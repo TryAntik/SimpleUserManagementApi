@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SimpleUserManagementApi.DataBase.Models;
+using SimpleUserManagementApi.Auth.DTOs;
 using SimpleUserManagementApi.UserManager.DTOs;
 using SimpleUserManagementApi.UserManager.Interfaces;
 
@@ -12,9 +13,15 @@ namespace SimpleUserManagementApi.UserManager.Controllers;
 public class UserController : ControllerBase, IUserController
 {
     private readonly IUserService _userService;
+    private readonly IValidator<CreateUserDTO> _createUserValidator;
 
-    public UserController(IUserService userService) 
-        => _userService = userService;
+    public UserController(IUserService userService, 
+        IValidator<CreateUserDTO> createUserValidator,
+        IValidator<RegisterRequestDTO> registerRequestValidator)
+    {
+        _userService = userService;
+        _createUserValidator = createUserValidator;
+    }
 
     [HttpGet]
     public async Task<ActionResult<List<UserDTO>>> GetAllUsersAsync(CancellationToken ct)
@@ -27,6 +34,9 @@ public class UserController : ControllerBase, IUserController
     [HttpPost]
     public async Task<ActionResult> AddUserAsync([FromBody] CreateUserDTO user, CancellationToken ct)
     {
+        var result = await _createUserValidator.ValidateAsync(user, ct);
+        if (!result.IsValid) return BadRequest(result.ToDictionary());
+
         await _userService.AddUserAsync(user, ct);
         return Ok();
     }

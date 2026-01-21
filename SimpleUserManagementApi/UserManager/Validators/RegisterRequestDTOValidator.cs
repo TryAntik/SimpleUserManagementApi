@@ -1,12 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
-using FluentValidation;
-using SimpleUserManagementApi.UserManager.DTOs;
+﻿using FluentValidation;
+using SimpleUserManagementApi.Auth.DTOs;
 
 namespace SimpleUserManagementApi.UserManager.Validators;
 
-public class CreateUserDTOValidator : AbstractValidator<CreateUserDTO>
+public class RegisterRequestDTOValidator : AbstractValidator<RegisterRequestDTO>
 {
-    public CreateUserDTOValidator()
+    public RegisterRequestDTOValidator()
     {
         RuleFor(a => a.Email)
             .NotEmpty().WithMessage("email is required")
