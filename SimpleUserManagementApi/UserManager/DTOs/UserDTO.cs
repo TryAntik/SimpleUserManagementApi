@@ -7,7 +7,7 @@ public sealed record UserDTO(Guid Id, string Name, string Email, DateTime Create
 public sealed record CreateUserDTO(
     [MinLength(3), MaxLength(9), Required] string Name, 
     [EmailAddress, MaxLength(30), Required] string Email,
-    [Required] string PasswordHash);
+    [Required] string Password);
 
 public sealed record UpdateUserDTO(
     [MinLength(3), MaxLength(9), Required] string Name, 

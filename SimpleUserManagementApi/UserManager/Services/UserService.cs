@@ -1,4 +1,5 @@
-﻿using SimpleUserManagementApi.Auth.DTOs;
+﻿using System.Security.Cryptography;
+using SimpleUserManagementApi.Auth.DTOs;
 using SimpleUserManagementApi.Auth.JWT;
 using SimpleUserManagementApi.Auth.RefreshToken;
 using SimpleUserManagementApi.DataBase.Models;
@@ -78,11 +79,16 @@ public class UserService : IUserService
 
     public async Task AddUserAsync(CreateUserDTO userDTO, CancellationToken ct)
     {
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword(userDTO.Password);
+
+        if (await _userRepository.GetUserByEmailAsync(userDTO.Email, ct) is not null)
+            throw new InvalidOperationException($"user with email {userDTO.Email} is already registered");
+        
         var userEntity = new UserEntity
         {
             Name = userDTO.Name,
             Email = userDTO.Email,
-            PasswordHash = userDTO.PasswordHash
+            PasswordHash = passwordHash
         };
 
         await _userRepository.AddUserAsync(userEntity, ct); 
@@ -113,7 +119,7 @@ public class UserService : IUserService
 
         var newJwt = _jwtService.GenerateToken(userEntity);
         var newRefreshToken = await _refreshTokenService.CreateTokenAsync(userEntity.Id, ct);
-
+        
         return new RefreshResponseDTO(newJwt, newRefreshToken.Token);
     }
 
