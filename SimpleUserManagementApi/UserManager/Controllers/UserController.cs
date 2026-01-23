@@ -14,15 +14,17 @@ public class UserController : ControllerBase, IUserController
 {
     private readonly IUserService _userService;
     private readonly IValidator<CreateUserDTO> _createUserValidator;
-
-    public UserController(IUserService userService, 
+    private readonly IValidator<UpdateUserDTO> _updateUserValidator;
+    
+    public UserController(IUserService userService,
         IValidator<CreateUserDTO> createUserValidator,
-        IValidator<RegisterRequestDTO> registerRequestValidator)
+        IValidator<UpdateUserDTO> updateUserValidator)
     {
         _userService = userService;
         _createUserValidator = createUserValidator;
+        _updateUserValidator = updateUserValidator;
     }
-
+    
     [HttpGet]
     public async Task<ActionResult<List<UserDTO>>> GetAllUsersAsync(CancellationToken ct)
         => Ok(await _userService.GetAllUsersAsync(ct));
@@ -44,6 +46,9 @@ public class UserController : ControllerBase, IUserController
     [HttpPut("{id:guid}")]
     public async Task<ActionResult> UpdateUserAsync(Guid id, [FromBody] UpdateUserDTO user, CancellationToken ct)
     {
+        var result = await _updateUserValidator.ValidateAsync(user, ct);
+        if (!result.IsValid) return BadRequest(result.ToDictionary());
+        
         await _userService.UpdateUserAsync(id, user, ct);
         return Ok();
     }

@@ -31,7 +31,12 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.Configure<RefreshTokenSettings>(configuration.GetSection("RefeshTokenSettings"));
+
 builder.Services.AddValidatorsFromAssemblyContaining<CreateUserDTOValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestDTOValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestDTOValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<UpdateUserDTOValidator>();
+
 builder.Services.AddAuth(configuration);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi(); 

@@ -17,25 +17,35 @@ public class AuthController : ControllerBase, IAuthController
     private readonly IUserService _userService;
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly IValidator<RegisterRequestDTO> _registerValidator;
+    private readonly IValidator<LoginRequestDTO> _loginValidator;
 
-    public AuthController(IUserService userService, IRefreshTokenService refreshTokenService, IValidator<RegisterRequestDTO> registerValidator)
+    public AuthController(IUserService userService, 
+        IRefreshTokenService refreshTokenService,
+        IValidator<RegisterRequestDTO> registerValidator,
+        IValidator<LoginRequestDTO> loginRequest)
     {
-        _userService = userService;
+        _userService = userService; 
         _refreshTokenService = refreshTokenService;
         _registerValidator = registerValidator;
+        _loginValidator = loginRequest;
     }
-
+    
     [HttpPost("login")]
-    public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequestDTO request, CancellationToken ct) 
-        => Ok(await _userService.LoginUserAsync(request, ct));
-
-    [HttpPost("register")]
-    public async Task<ActionResult> Register([FromBody] RegisterRequestDTO requestDto, CancellationToken ct)
+    public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequestDTO request, CancellationToken ct)
     {
-        var result = await _registerValidator.ValidateAsync(requestDto, ct);
+        var result = await _loginValidator.ValidateAsync(request, ct);
+        if (!result.IsValid) return BadRequest(result.ToDictionary());
+
+        return Ok(await _userService.LoginUserAsync(request, ct));
+    }
+    
+    [HttpPost("register")]
+    public async Task<ActionResult> Register([FromBody] RegisterRequestDTO requestDTO, CancellationToken ct)
+    {
+        var result = await _registerValidator.ValidateAsync(requestDTO, ct);
         if (!result.IsValid) return BadRequest(result.ToDictionary());
         
-        await _userService.RegisterUserAsync(requestDto, ct);
+        await _userService.RegisterUserAsync(requestDTO, ct);
         return Ok();
     }
 

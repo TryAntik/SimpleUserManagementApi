@@ -14,7 +14,7 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly IJwtService _jwtService;
     private readonly IRefreshTokenService _refreshTokenService;
-
+    
     public UserService(IUserRepository userRepository, IJwtService jwtService, IRefreshTokenService refreshTokenService)
     {
         _userRepository = userRepository;
