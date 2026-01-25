@@ -53,7 +53,7 @@ public class AuthController : ControllerBase, IAuthController
     public async Task<ActionResult> Logout(LogoutRequestDTO request, CancellationToken ct)
     {
         await _refreshTokenService.RevokeTokenAsync(request.tokenId, ct);
-        return Ok();
+        return Ok(); 
     }
 
     [HttpPost("refresh")]

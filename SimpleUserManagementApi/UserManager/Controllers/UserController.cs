@@ -15,12 +15,15 @@ public class UserController : ControllerBase, IUserController
     private readonly IUserService _userService;
     private readonly IValidator<CreateUserDTO> _createUserValidator;
     private readonly IValidator<UpdateUserDTO> _updateUserValidator;
+    private readonly ILogger<UserController> _logger;
     
     public UserController(IUserService userService,
+        ILogger<UserController> logger,
         IValidator<CreateUserDTO> createUserValidator,
         IValidator<UpdateUserDTO> updateUserValidator)
     {
         _userService = userService;
+        _logger = logger;
         _createUserValidator = createUserValidator;
         _updateUserValidator = updateUserValidator;
     }
@@ -37,8 +40,12 @@ public class UserController : ControllerBase, IUserController
     public async Task<ActionResult> AddUserAsync([FromBody] CreateUserDTO user, CancellationToken ct)
     {
         var result = await _createUserValidator.ValidateAsync(user, ct);
-        if (!result.IsValid) return BadRequest(result.ToDictionary());
-
+        if (!result.IsValid)
+        {
+            _logger.LogError("validation failed in AddUserAsync");
+            return BadRequest(result.ToDictionary());
+        }
+        
         await _userService.AddUserAsync(user, ct);
         return Ok();
     }
@@ -47,7 +54,11 @@ public class UserController : ControllerBase, IUserController
     public async Task<ActionResult> UpdateUserAsync(Guid id, [FromBody] UpdateUserDTO user, CancellationToken ct)
     {
         var result = await _updateUserValidator.ValidateAsync(user, ct);
-        if (!result.IsValid) return BadRequest(result.ToDictionary());
+        if (!result.IsValid)
+        {
+            _logger.LogError("validation failed in UpdateUserAsync");
+            return BadRequest(result.ToDictionary());
+        }
         
         await _userService.UpdateUserAsync(id, user, ct);
         return Ok();

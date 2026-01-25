@@ -14,18 +14,23 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly IJwtService _jwtService;
     private readonly IRefreshTokenService _refreshTokenService;
+    private readonly ILogger<UserService> _logger;
     
-    public UserService(IUserRepository userRepository, IJwtService jwtService, IRefreshTokenService refreshTokenService)
+    public UserService(IUserRepository userRepository,
+        IJwtService jwtService,
+        IRefreshTokenService refreshTokenService,
+        ILogger<UserService> logger)
     {
         _userRepository = userRepository;
         _jwtService = jwtService;
         _refreshTokenService = refreshTokenService;
+        _logger = logger;
     }
 
     public async Task<List<UserDTO>> GetAllUsersAsync(CancellationToken ct)
     {
         var users = await _userRepository.GetAllUsersAsync(ct);
-
+        
         return users.Select(a => new UserDTO(
             a.Id,
             a.Name,
@@ -43,18 +48,23 @@ public class UserService : IUserService
         return new UserDTO(user.Id, user.Name, user.Email, user.CreatedAt);
     }
 
-    public async Task RegisterUserAsync(RegisterRequestDTO requestDto, CancellationToken ct)
+    public async Task RegisterUserAsync(RegisterRequestDTO requestDTO, CancellationToken ct)
     {
-        var userExists = await _userRepository.CheckUserExistsAsync(requestDto.Email, ct);
-        if (userExists) throw new Exception($"user with email {requestDto.Email} is already registered");
+        var userExists = await _userRepository.CheckUserExistsAsync(requestDTO.Email, ct);
+        if (userExists)
+        {
+            _logger.LogWarning("user with email={Email} is already registered", requestDTO.Email);
+            throw new InvalidOperationException($"user with email {requestDTO.Email} is already registered");
+        }
         
         var createUserDTO = new CreateUserDTO(
-            requestDto.Email.ToLowerInvariant().Trim(),
-            requestDto.Name.Trim(),
-            requestDto.Password
+            requestDTO.Email.ToLowerInvariant().Trim(),
+            requestDTO.Name.Trim(),
+            requestDTO.Password
         );
 
         await AddUserAsync(createUserDTO, ct);
+        _logger.LogInformation("user created");
     }
 
     public async Task<LoginResponseDTO> LoginUserAsync(LoginRequestDTO request, CancellationToken ct)
@@ -92,9 +102,10 @@ public class UserService : IUserService
     {
         var user = await _userRepository.GetUserByIdAsync(id, ct);
         
-        if(user is null) throw new NotFoundException(
-            $"user with id {id} not found");
-        
+        if(user is null) {
+            _logger.LogWarning("user with id={Guid} not found", id);
+            throw new NotFoundException($"user with id {id} not found");
+        }
         user.Name = userDTO.Name;
         user.Email = userDTO.Email;
         

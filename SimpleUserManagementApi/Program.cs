@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentValidation;
 using Scalar.AspNetCore;
 using Microsoft.EntityFrameworkCore;
@@ -49,9 +50,29 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
     app.MapGet("/", () => Results.Redirect("/scalar"));
 }
+ 
 
-app.UseExceptionHandler(errorApp => { errorApp.Run(async context => { var exception = context.Features.Get<IExceptionHandlerPathFeature>()?.Error; context.Response.StatusCode = exception switch { NotFoundException => 404, ArgumentException => 400, Pasxalka => 148, _ => 500 }; context.Response.ContentType = "application/json"; var response = new { error = exception?.Message }; await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(response)); }); });
-
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var exception = context.Features.Get<IExceptionHandlerPathFeature>()?.Error;
+        context.Response.StatusCode = exception switch
+        {
+            NotFoundException => 404,
+            BadRequestException => 400,
+            ValidationException => 400,
+            _ => 500
+        };
+        context.Response.ContentType = "application/json";
+        var response = new
+        {
+            error = exception?.Message, 
+            statusCode = context.Response.StatusCode
+        };
+        await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+    });
+});
 
 app.UseHttpsRedirection();
 
