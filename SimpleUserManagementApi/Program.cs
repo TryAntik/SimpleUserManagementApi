@@ -3,6 +3,7 @@ using FluentValidation;
 using Scalar.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Diagnostics;
+using Serilog;
 using SimpleUserManagementApi.Auth.Extensions;
 using SimpleUserManagementApi.Auth.RefreshToken;
 using SimpleUserManagementApi.DataBase;
@@ -15,8 +16,16 @@ using SimpleUserManagementApi.PostManager.Repositories;
 using SimpleUserManagementApi.UserManager.Repositories;
 using SimpleUserManagementApi.UserManager.Validators;
 
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Infinite)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
+
+builder.Host.UseSerilog();
 
 builder.Configuration.AddEnvironmentVariables();
 
@@ -50,7 +59,6 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
     app.MapGet("/", () => Results.Redirect("/scalar"));
 }
- 
 
 app.UseExceptionHandler(errorApp =>
 {
