@@ -42,19 +42,21 @@ public class UserService : IUserService
     {
         var user = await _userRepository.GetUserByIdAsync(userId, ct);
 
-        if (user is null) throw new NotFoundException(  
-            $"user with id {userId} not found");
+        if (user is null)
+        {
+            _logger.LogInformation("User with id {UserId} not found", userId);
+            throw new NotFoundException($"User with id {userId} not found");
+        }
         
         return new UserDTO(user.Id, user.Name, user.Email, user.CreatedAt);
     }
 
     public async Task RegisterUserAsync(RegisterRequestDTO requestDTO, CancellationToken ct)
     {
-        var userExists = await _userRepository.CheckUserExistsAsync(requestDTO.Email, ct);
-        if (userExists)
+        if (await _userRepository.CheckUserExistsAsync(requestDTO.Email, ct))
         {
-            _logger.LogWarning("user with email={Email} is already registered", requestDTO.Email);
-            throw new InvalidOperationException($"user with email {requestDTO.Email} is already registered");
+            _logger.LogWarning("User with email {Email} is already registered", requestDTO.Email);
+            throw new InvalidOperationException($"User with email {requestDTO.Email} is already registered");
         }
         
         var createUserDTO = new CreateUserDTO(
@@ -64,16 +66,23 @@ public class UserService : IUserService
         );
 
         await AddUserAsync(createUserDTO, ct);
-        _logger.LogInformation("user created");
     }
 
     public async Task<LoginResponseDTO> LoginUserAsync(LoginRequestDTO request, CancellationToken ct)
     {
         var user = await _userRepository.GetUserByEmailAsync(request.Email, ct);
-        if(user is null) throw new NotFoundException($"user with email {request.Email} not found");
+        if (user is null)
+        {
+            _logger.LogWarning("User with email {Email} not found", request.Email);
+            throw new NotFoundException($"user with email {request.Email} not found");
+        }
         
         var validPassword = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
-        if(!validPassword) throw new UnauthorizedAccessException($"invalid password");
+        if (!validPassword)
+        {
+            _logger.LogWarning("Password {Password} is incorrect", request.Password);
+            throw new UnauthorizedAccessException($"Password is incorrect");
+        }
         
         var accessToken = _jwtService.GenerateToken(user);
         var refreshToken = await _refreshTokenService.CreateTokenAsync(user.Id, ct);
@@ -86,7 +95,10 @@ public class UserService : IUserService
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(userDTO.Password);
 
         if (await _userRepository.CheckUserExistsAsync(userDTO.Email, ct))
-            throw new InvalidOperationException($"user with email {userDTO.Email} is already registered");
+        {
+            _logger.LogWarning("User with email {Email} is alreadyt registered", userDTO.Email);
+            throw new InvalidOperationException($"User with email {userDTO.Email} is already registered");
+        }
         
         var userEntity = new UserEntity
         {
@@ -103,8 +115,8 @@ public class UserService : IUserService
         var user = await _userRepository.GetUserByIdAsync(id, ct);
         
         if(user is null) {
-            _logger.LogWarning("user with id={Guid} not found", id);
-            throw new NotFoundException($"user with id {id} not found");
+            _logger.LogWarning("User with id {UserId} not found", id);
+            throw new NotFoundException($"User with id {id} not found");
         }
         user.Name = userDTO.Name;
         user.Email = userDTO.Email;
@@ -115,12 +127,20 @@ public class UserService : IUserService
     public async Task<RefreshResponseDTO> RefreshTokenAsync(RefreshRequestDTO request, CancellationToken ct)
     {
         var refreshEntity = await _refreshTokenService.GetTokenAsync(request.RefreshTokenDto, ct);
-        if (refreshEntity is null) throw new UnauthorizedAccessException("Invalid refresh token");
+        if (refreshEntity is null)
+        {
+            _logger.LogWarning("Refresh token {RefreshToken} is invalid", request.RefreshTokenDto);
+            throw new UnauthorizedAccessException("Invalid refresh token");
+        }
 
         await _refreshTokenService.RevokeTokenAsync(refreshEntity.Id, ct);
 
         var userEntity = await _userRepository.GetUserByIdAsync(refreshEntity.UserId, ct);
-        if (userEntity is null) throw new NotFoundException($"User with id {refreshEntity.UserId} was not found");
+        if (userEntity is null)
+        {
+            _logger.LogWarning("User with id {UserId} not found", refreshEntity.UserId);
+            throw new NotFoundException($"User with id {refreshEntity.UserId} was not found");
+        }
 
         var newJwt = _jwtService.GenerateToken(userEntity);
         var newRefreshToken = await _refreshTokenService.CreateTokenAsync(userEntity.Id, ct);

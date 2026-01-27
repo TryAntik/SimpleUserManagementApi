@@ -16,16 +16,10 @@ using SimpleUserManagementApi.PostManager.Repositories;
 using SimpleUserManagementApi.UserManager.Repositories;
 using SimpleUserManagementApi.UserManager.Validators;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Infinite)
-    .Enrich.FromLogContext()
-    .CreateLogger();
-
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-builder.Host.UseSerilog();
+builder.UseSerilogLogging();
 
 builder.Configuration.AddEnvironmentVariables();
 

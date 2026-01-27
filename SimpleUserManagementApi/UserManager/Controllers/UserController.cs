@@ -8,7 +8,7 @@ using SimpleUserManagementApi.UserManager.Interfaces;
 namespace SimpleUserManagementApi.UserManager.Controllers;
 
 [ApiController]
-[Authorize(Policy = "AdminAccess")]
+// [Authorize(Policy = "AdminAccess")]
 [Route("api/users")]
 public class UserController : ControllerBase, IUserController
 {
@@ -34,7 +34,9 @@ public class UserController : ControllerBase, IUserController
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<UserDTO>> GetUserByIdAsync(Guid id, CancellationToken ct)
-        => Ok(await _userService.GetUserByIdAsync(id, ct));
+    {
+        return Ok(await _userService.GetUserByIdAsync(id, ct));
+    }
 
     [HttpPost]
     public async Task<ActionResult> AddUserAsync([FromBody] CreateUserDTO user, CancellationToken ct)

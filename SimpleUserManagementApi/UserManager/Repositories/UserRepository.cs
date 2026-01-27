@@ -10,9 +10,13 @@ namespace SimpleUserManagementApi.UserManager.Repositories;
 public class UserRepository : IUserRepository
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly Logger<UserRepository> _logger;
 
-    public UserRepository(ApplicationDbContext dbContext)
-        => _dbContext = dbContext;
+    public UserRepository(ApplicationDbContext dbContext, Logger<UserRepository> logger)
+    {
+        _dbContext = dbContext;
+        _logger = logger;
+    }
 
     public async Task<bool> CheckUserExistsAsync(string email, string name, CancellationToken ct = default)
         => await _dbContext.Users.AnyAsync(u =>
@@ -35,12 +39,14 @@ public class UserRepository : IUserRepository
     public async Task AddUserAsync(UserEntity user, CancellationToken ct = default)
     { 
         _dbContext.Users.Add(user);
+        _logger.LogInformation("User created: {@User}", user);
         await _dbContext.SaveChangesAsync(ct);
     }
 
     public async Task UpdateUserAsync(UserEntity updatedUser, CancellationToken ct = default)
     {
         _dbContext.Users.Update(updatedUser);
+        _logger.LogInformation("User updated: {@UpdatedUser}", updatedUser);
         await _dbContext.SaveChangesAsync(ct);
     }
 
@@ -49,9 +55,13 @@ public class UserRepository : IUserRepository
         var user = await _dbContext.Users.FirstOrDefaultAsync(a => a.Id == id, ct);
 
         if (user == null)
+        {
+            _logger.LogWarning("User not found: {@User}", user);
             throw new NotFoundException($"user with id {id} not found");
+        }
 
         _dbContext.Users.Remove(user);
+        _logger.LogInformation("User removed from db: {@User}", user);
         await _dbContext.SaveChangesAsync(ct);
     }
 }
